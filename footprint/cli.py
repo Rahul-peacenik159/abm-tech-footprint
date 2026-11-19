@@ -213,6 +213,32 @@ def cmd_discover(args) -> None:
     print("\nTip: hosts that repeat across several customers of the same tool are that tool's fingerprint.")
 
 
+def cmd_summary(args) -> None:
+    """Markdown table of accounts_summary.csv (used for the GitHub Actions run summary)."""
+    path = Path(args.file)
+    if not path.exists():
+        sys.exit(f"Not found: {path}")
+    with path.open(newline="", encoding="utf-8") as fh:
+        rows = list(csv.DictReader(fh))
+    cols = [("account_domain", "Account"), ("score", "Score"), ("top_play", "Top play"),
+            ("competitors", "Competitors"), ("gaps", "Gaps"), ("posture_issues", "Posture issues"),
+            ("changes", "Changes"), ("all_tools", "Tools found")]
+    cols = [(k, label) for k, label in cols if rows and k in rows[0] and any(r.get(k) for r in rows)]
+    title = args.title or f"Scan results: {path.parent.name}"
+    print(f"### {title}\n")
+    print(f"{len(rows)} accounts, {sum(1 for r in rows if r.get('fetched') == 'True')} websites loaded.\n")
+    print("| " + " | ".join(label for _, label in cols) + " |")
+    print("|" + "---|" * len(cols))
+    for r in rows[: args.top]:
+        cells = [(r.get(k) or "").replace("|", "/").replace("_", " ") if k not in ("account_domain", "all_tools")
+                 else (r.get(k) or "").replace("|", "/") for k, _ in cols]
+        cells = [c if len(c) <= 140 else c[:137] + "..." for c in cells]
+        print("| " + " | ".join(cells) + " |")
+    errors = [r for r in rows if r.get("errors")]
+    if errors:
+        print(f"\n{len(errors)} account(s) had errors; see accounts_summary.csv (errors column).")
+
+
 def cmd_packs(args) -> None:
     for p in packs.list_packs(PACK_DIR):
         pk = packs.load_pack(p)
@@ -275,6 +301,12 @@ def main(argv=None) -> None:
     d.set_defaults(func=cmd_discover)
 
     sub.add_parser("packs", help="list available packs").set_defaults(func=cmd_packs)
+
+    sm = sub.add_parser("summary", help="print accounts_summary.csv as a markdown table")
+    sm.add_argument("file", nargs="?", default="out/accounts_summary.csv")
+    sm.add_argument("--top", type=int, default=50, help="max rows")
+    sm.add_argument("--title")
+    sm.set_defaults(func=cmd_summary)
     sub.add_parser("compile-packs", help="write stack-packs/compiled/*.json for n8n").set_defaults(func=cmd_compile)
 
     h = sub.add_parser("httparchive-sql", help="generate the BigQuery HTTP Archive query for a pack")

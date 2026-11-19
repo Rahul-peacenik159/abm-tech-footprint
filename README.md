@@ -60,6 +60,10 @@ Useful flags:
 --from-raw raw.json --dns-raw dns.json   # use data collected in your browser (collectors/), no network needed
 ```
 
+## Run it on GitHub instead (no installs)
+
+The repo includes a **scan** workflow that runs on GitHub's servers: **Actions** tab > **scan** > **Run workflow**, pick a pack and an account list (or type domains), and the results table appears on the run's Summary page with CSVs to download. Steps, private-list advice and weekly scheduling: [docs/run-on-github.md](docs/run-on-github.md).
+
 ## How it works
 
 Five free sources, each catching a different layer. Details in [docs/how-it-works.md](docs/how-it-works.md).
@@ -166,7 +170,8 @@ stack-packs/compiled/ JSON versions of each pack (used by n8n)
 bigquery/             00_schema, 10_httparchive_match (template), 20_tech_changes, 30_account_scores
 n8n/                  weekly workflow JSON + readable copy of its detection code
 sample-data/          sample account lists per industry (company domains only)
-docs/                 how-it-works, who-benefits, stack-packs, build-a-pack-with-ai, bigquery-setup, security-and-email-checks
+docs/                 how-it-works, who-benefits, stack-packs, build-a-pack-with-ai, bigquery-setup, security-and-email-checks, run-on-github
+.github/workflows/    ci.yml (tests) and scan.yml (run scans on GitHub Actions)
 tests/                offline tests (pytest -q)
 ```
 

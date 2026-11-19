@@ -205,3 +205,15 @@ def test_dmarc_vendor_detection():
     pack = packs.load_pack(PACKS / "email-deliverability.yaml")
     hits = detect.detect_dns([], [], pack["tools"], ["v=DMARC1; p=reject; rua=mailto:abc@ag.dmarcian.com"])
     assert {h["tool"]: h["source"] for h in hits}.get("dmarcian") == "dmarc"
+
+
+def test_summary_markdown(tmp_path, capsys):
+    f = tmp_path / "accounts_summary.csv"
+    with f.open("w", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=signals.SUMMARY_FIELDS)
+        w.writeheader()
+        w.writerow({"account_domain": "a.example", "fetched": "True", "score": 40, "top_play": "dmarc_enforcement",
+                    "posture_issues": "dmarc_monitor_only", "all_tools": "Google Workspace", "errors": ""})
+    cli.main(["summary", str(f), "--title", "T"])
+    out = capsys.readouterr().out
+    assert "### T" in out and "| a.example | 40 | dmarc enforcement |" in out

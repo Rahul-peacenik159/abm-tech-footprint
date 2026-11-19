@@ -1,0 +1,122 @@
+name: scan
+
+# Run the scanner on GitHub's servers, no laptop needed.
+#
+#   Actions tab > "scan" > Run workflow > pick a pack and an account list
+#   (or type domains) > Run.
+#
+# Results: a table on the run's Summary page, plus a downloadable
+# "scan-results-<pack>" artifact with accounts_summary.csv, signals.csv and
+# signals.jsonl.
+#
+# PRIVACY: in a PUBLIC repo, run logs, summaries and artifacts are visible to
+# others. Only scan public lists here (like sample-data/). For your real
+# prospect list, use a PRIVATE copy of this repo (see docs/run-on-github.md).
+
+on:
+  workflow_dispatch:
+    inputs:
+      pack:
+        description: "Stack pack"
+        type: choice
+        default: security-compliance
+        options:
+          - security-compliance
+          - email-deliverability
+          - b2b-saas
+          - hospitality
+          - ecommerce
+          - restaurants
+          - auto-dealers
+          - healthcare-practices
+          - higher-ed
+      accounts:
+        description: "Account list CSV in the repo (needs a 'domain' column). Ignored if domains are typed below."
+        type: string
+        default: sample-data/accounts-enterprise-startups.csv
+      domains:
+        description: "Or type domains separated by spaces (e.g. acme.com example.io)"
+        type: string
+        default: ""
+      crtsh:
+        description: "Also check certificate logs for new subdomains (slower)"
+        type: boolean
+        default: false
+      pagespeed:
+        description: "Also get mobile PageSpeed score (set PAGESPEED_API_KEY secret for higher quota)"
+        type: boolean
+        default: false
+
+  # Weekly run on your own list. Uncomment and set the pack/list in the env block below.
+  # schedule:
+  #   - cron: "17 3 * * 1"   # Mondays 03:17 UTC
+
+permissions:
+  contents: read
+
+concurrency:
+  group: scan-${{ github.ref }}-${{ inputs.pack || 'scheduled' }}
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      PACK: ${{ inputs.pack || 'security-compliance' }}
+      ACCOUNTS: ${{ inputs.accounts || 'sample-data/accounts-enterprise-startups.csv' }}
+      DOMAINS: ${{ inputs.domains }}
+      CRTSH: ${{ inputs.crtsh && '--crtsh' || '' }}
+      PAGESPEED: ${{ inputs.pagespeed && '--pagespeed' || '' }}
+      PAGESPEED_API_KEY: ${{ secrets.PAGESPEED_API_KEY }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      # Keep previous snapshots so this run can report tools added / removed.
+      - name: Restore previous snapshots
+        uses: actions/cache/restore@v4
+        with:
+          path: out/snapshots
+          key: snapshots-${{ env.PACK }}-${{ github.run_id }}
+          restore-keys: snapshots-${{ env.PACK }}-
+
+      - name: Scan
+        run: |
+          set -f  # no glob expansion of typed domains
+          if [ -n "$DOMAINS" ]; then
+            python -m footprint scan --pack "$PACK" --domains $DOMAINS --out out $CRTSH $PAGESPEED
+          else
+            python -m footprint scan --pack "$PACK" --accounts "$ACCOUNTS" --out out $CRTSH $PAGESPEED
+          fi
+
+      - name: Results table on the run summary page
+        if: always()
+        run: |
+          if [ -f out/accounts_summary.csv ]; then
+            python -m footprint summary out/accounts_summary.csv --title "Pack: $PACK" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Save snapshots for next run
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: out/snapshots
+          key: snapshots-${{ env.PACK }}-${{ github.run_id }}
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scan-results-${{ env.PACK }}
+          path: |
+            out/accounts_summary.csv
+            out/signals.csv
+            out/signals.jsonl
+          retention-days: 30

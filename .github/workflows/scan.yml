@@ -38,6 +38,10 @@ on:
         description: "Or type domains separated by spaces (e.g. acme.com example.io)"
         type: string
         default: ""
+      render:
+        description: "Open each site in a real browser so tools loaded by tag managers (cookie banners, pixels) are found (adds about 1 minute)"
+        type: boolean
+        default: true
       crtsh:
         description: "Also check certificate logs for new subdomains (slower)"
         type: boolean
@@ -66,6 +70,7 @@ jobs:
       PACK: ${{ inputs.pack || 'security-compliance' }}
       ACCOUNTS: ${{ inputs.accounts || 'sample-data/accounts-enterprise-startups.csv' }}
       DOMAINS: ${{ inputs.domains }}
+      RENDER: ${{ (inputs.render || github.event_name == 'schedule') && '--render' || '' }}
       CRTSH: ${{ inputs.crtsh && '--crtsh' || '' }}
       PAGESPEED: ${{ inputs.pagespeed && '--pagespeed' || '' }}
       PAGESPEED_API_KEY: ${{ secrets.PAGESPEED_API_KEY }}
@@ -79,6 +84,12 @@ jobs:
 
       - run: pip install -r requirements.txt
 
+      - name: Install headless browser
+        if: env.RENDER != ''
+        run: |
+          pip install -r requirements-render.txt
+          python -m playwright install --with-deps chromium
+
       # Keep previous snapshots so this run can report tools added / removed.
       - name: Restore previous snapshots
         uses: actions/cache/restore@v5
@@ -91,9 +102,9 @@ jobs:
         run: |
           set -f  # no glob expansion of typed domains
           if [ -n "$DOMAINS" ]; then
-            python -m footprint scan --pack "$PACK" --domains $DOMAINS --out out $CRTSH $PAGESPEED
+            python -m footprint scan --pack "$PACK" --domains $DOMAINS --out out $RENDER $CRTSH $PAGESPEED
           else
-            python -m footprint scan --pack "$PACK" --accounts "$ACCOUNTS" --out out $CRTSH $PAGESPEED
+            python -m footprint scan --pack "$PACK" --accounts "$ACCOUNTS" --out out $RENDER $CRTSH $PAGESPEED
           fi
 
       - name: Results table on the run summary page
@@ -112,11 +123,12 @@ jobs:
 
       - name: Upload results
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: scan-results-${{ env.PACK }}
           path: |
             out/accounts_summary.csv
             out/signals.csv
             out/signals.jsonl
+            out/run_info.json
           retention-days: 30

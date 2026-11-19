@@ -29,7 +29,7 @@ The CLI fetches `https://<domain>` (falling back to `https://www.<domain>`) plus
 
 Patterns pointing at the account's own domain are skipped, so scanning a vendor doesn't "detect" that vendor.
 
-**Limits:** sites that block bots return an error (shown in the `errors` column). Tools loaded only after a click, or only inside a tag manager, may be missed. Pages behind a login are never seen.
+**Limits:** sites that block bots return an error (shown in the `errors` column). Pages behind a login are never seen. A plain request only sees the page's own code, so tools loaded later through Google Tag Manager or similar (cookie banners, ad pixels, chat widgets) are missed. Use `--render` (on by default in the GitHub workflow) to load the page in headless Chromium and catch them; tools that only load after a visitor accepts cookies can still be missed.
 
 ### 2. DNS records (free)
 

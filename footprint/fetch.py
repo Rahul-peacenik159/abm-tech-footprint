@@ -161,3 +161,77 @@ def pagespeed(url: str, api_key: str | None = None) -> dict:
         return {"score": round(score * 100) if score is not None else None, "error": None}
     except Exception as exc:
         return {"score": None, "error": f"PageSpeed failed: {exc}"[:300]}
+
+
+class Renderer:
+    """Loads pages in headless Chromium so tools injected by tag managers
+    (Google Tag Manager, Segment, consent banners) are seen too.
+
+    Optional: pip install -r requirements-render.txt && python -m playwright install chromium
+    Use as a context manager so one browser is reused for the whole scan.
+    """
+
+    def __init__(self, wait_ms: int = 4000):
+        self.wait_ms = wait_ms
+        self._pw = self._browser = self._ctx = None
+
+    def __enter__(self):
+        try:
+            from playwright.sync_api import sync_playwright  # type: ignore
+        except ImportError as exc:  # pragma: no cover - depends on optional install
+            raise SystemExit("--render needs Playwright: pip install -r requirements-render.txt "
+                             "&& python -m playwright install chromium") from exc
+        self._pw = sync_playwright().start()
+        self._browser = self._pw.chromium.launch()
+        ua = self._browser.new_page().evaluate("navigator.userAgent").replace("HeadlessChrome", "Chrome")
+        self._ctx = self._browser.new_context(user_agent=f"{ua} {USER_AGENT}", ignore_https_errors=False)
+        return self
+
+    def __exit__(self, *exc):
+        for obj in (self._ctx, self._browser):
+            try:
+                obj and obj.close()
+            except Exception:
+                pass
+        if self._pw:
+            self._pw.stop()
+
+    _COLLECT_JS = """() => {
+        const urls = new Set(performance.getEntriesByType('resource').map(e => e.name));
+        document.querySelectorAll('[src],[href],[action]').forEach(el =>
+            urls.add(el.getAttribute('src') || el.getAttribute('href') || el.getAttribute('action')));
+        return [...urls].join('\\n') + '\\n' + (document.body ? document.body.innerText : '');
+    }"""
+
+    def fetch_site(self, domain: str, extra_paths: list[str] | None = None,
+                   candidates: list[str] | None = None) -> dict:
+        """Same return shape as fetch_site(), with rendered DOM + loaded resource URLs as html."""
+        result = {"ok": False, "url": None, "html": "", "headers": {}, "error": None}
+        page = self._ctx.new_page()
+        try:
+            for base in candidates or (f"https://{domain}", f"https://www.{domain}"):
+                try:
+                    resp = page.goto(base, wait_until="load", timeout=int(TIMEOUT * 1000) + 10000)
+                    if resp is None or resp.status >= 400:
+                        result["error"] = f"HTTP {resp.status if resp else 'no response'} from {base}"
+                        continue
+                    page.wait_for_timeout(self.wait_ms)
+                    result.update(ok=True, url=page.url, headers=resp.all_headers(),
+                                  html=page.content() + "\n" + page.evaluate(self._COLLECT_JS))
+                    break
+                except Exception as exc:
+                    result["error"] = f"{type(exc).__name__}: {exc}"[:300]
+            if result["ok"]:
+                root = "/".join(result["url"].split("/", 3)[:3])
+                for path in extra_paths or []:
+                    try:
+                        resp = page.goto(root + path, wait_until="load", timeout=int(TIMEOUT * 1000))
+                        if resp is not None and resp.status < 400:
+                            page.wait_for_timeout(min(self.wait_ms, 2000))
+                            result["html"] += "\n" + page.content() + "\n" + page.evaluate(self._COLLECT_JS)
+                    except Exception:
+                        pass
+                result["error"] = None
+        finally:
+            page.close()
+        return result

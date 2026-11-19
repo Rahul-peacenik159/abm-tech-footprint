@@ -217,3 +217,50 @@ def test_summary_markdown(tmp_path, capsys):
     cli.main(["summary", str(f), "--title", "T"])
     out = capsys.readouterr().out
     assert "### T" in out and "| a.example | 40 | dmarc enforcement |" in out
+
+
+def test_rerun_same_day_compares_with_previous(monkeypatch, tmp_path):
+    pages = {"grandhotel.example": FIXTURE}
+    monkeypatch.setattr(cli.fetch, "fetch_site", lambda d, p=None: {
+        "ok": True, "url": f"https://{d}/", "html": pages[d], "headers": {}, "error": None})
+    monkeypatch.setattr(cli.fetch, "get_dns", lambda d: {"txt": [], "mx": [], "error": None})
+    args = ["scan", "--pack", "hospitality", "--domains", "grandhotel.example", "--out", str(tmp_path), "--delay", "0"]
+    cli.main(args)
+    assert json.loads((tmp_path / "run_info.json").read_text())["previous_scan"] is None
+    pages["grandhotel.example"] = FIXTURE.replace("static.asksuite.com", "example.org")  # competitor removed
+    cli.main(args)
+    info = json.loads((tmp_path / "run_info.json").read_text())
+    assert info["previous_scan"] and info["changes"] == 1
+    with open(tmp_path / "accounts_summary.csv") as fh:
+        row = next(csv.DictReader(fh))
+    assert row["changes"] == "-Asksuite" and row["top_play"] == "switch_window_outreach"
+
+
+def test_render_sees_injected_scripts(tmp_path):
+    """Needs Playwright + Chromium; skipped otherwise (CI installs only the base requirements)."""
+    pytest.importorskip("playwright.sync_api")
+    import http.server
+    import os
+    import socketserver
+    import threading
+
+    (tmp_path / "index.html").write_text(
+        "<html><head><script>setTimeout(function(){var s=document.createElement('script');"
+        "s.src='/x/consent.' + 'cookiebot.com.js';document.head.appendChild(s);},200);</script></head>"
+        "<body>hello</body></html>")
+    (tmp_path / "x").mkdir()
+    (tmp_path / "x" / "consent.cookiebot.com.js").write_text("//")
+    handler = lambda *a, **k: http.server.SimpleHTTPRequestHandler(*a, directory=str(tmp_path), **k)  # noqa: E731
+    with socketserver.TCPServer(("127.0.0.1", 0), handler) as srv:
+        threading.Thread(target=srv.serve_forever, daemon=True).start()
+        os.environ.setdefault("NO_PROXY", "127.0.0.1,localhost")
+        url = f"http://127.0.0.1:{srv.server_address[1]}/"
+        try:
+            with cli.fetch.Renderer(wait_ms=1000) as r:
+                site = r.fetch_site("site.test", [], candidates=[url])
+        except Exception as exc:  # Chromium not installed
+            pytest.skip(f"browser not available: {exc}")
+        finally:
+            srv.shutdown()
+    pack = packs.load_pack(PACKS / "security-compliance.yaml")
+    assert "cookiebot" in {h["tool"] for h in detect.detect_web(site["html"], {}, pack["tools"], "site.test")}

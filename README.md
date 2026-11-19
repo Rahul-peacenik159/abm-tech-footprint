@@ -57,6 +57,8 @@ Useful flags:
 --pagespeed      # also get mobile speed score (set PAGESPEED_API_KEY in .env for higher quota)
 --domains a.com b.com   # scan domains without a CSV
 --limit 20       # try a few first
+--render         # open pages in headless Chromium to catch tools loaded by tag managers
+                 #   (pip install -r requirements-render.txt && python -m playwright install chromium)
 --from-raw raw.json --dns-raw dns.json   # use data collected in your browser (collectors/), no network needed
 ```
 

@@ -10,6 +10,7 @@ The `scan` workflow (`.github/workflows/scan.yml`) runs the scanner on GitHub's 
    - **Stack pack:** for example `security-compliance` or `email-deliverability`
    - **Account list CSV:** a file in the repo with a `domain` column, e.g. `sample-data/accounts-enterprise-startups.csv`
    - **Or type domains:** `acme.com example.io` (overrides the CSV)
+   - **render** (on by default): opens each site in a real headless browser, so tools that load through Google Tag Manager or after the page starts (cookie banners, ad pixels, chat widgets) are found. Adds about 1 minute. Turn it off for a quicker, rougher scan.
    - **crtsh / pagespeed:** optional extra checks (slower)
 4. Click the green **Run workflow** button. A run appears in the list after a few seconds; it takes 1 to 3 minutes for 10 accounts.
 5. Open the run:
@@ -33,6 +34,14 @@ Add a CSV with a `domain` column to the repo (for example `targets/my-accounts.c
    ```
 
 Private repos use your account's free monthly Actions minutes (2,000 minutes on GitHub Free at the time of writing); a 10-account scan uses about 2. Public repos run free.
+
+## Re-running and "changes"
+
+Every run saves a snapshot of the tools it found (kept in the Actions cache) and compares with the previous run of the same pack. The Summary page says which earlier scan it compared with and how many tools were added or removed; the **Changes** column lists them (`+Tool` added, `-Tool` removed).
+
+Re-running a few minutes later normally shows **0 changes**: websites rarely change that fast. The useful comparison is week to week.
+
+The first run with **render** on will list tools such as cookie banners and pixels as "added", because the earlier non-rendered scan could not see them. Ignore that one-off jump.
 
 ## Run it every week automatically
 

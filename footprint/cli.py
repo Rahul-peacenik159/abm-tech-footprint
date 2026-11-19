@@ -14,7 +14,7 @@ import json
 import os
 import sys
 import time
-from datetime import date
+from datetime import datetime, timezone
 from pathlib import Path
 
 from . import detect, fetch, packs, posture, signals
@@ -58,15 +58,16 @@ def _resolve_pack(value: str) -> Path:
     sys.exit(f"Pack not found: {value}. Run `python -m footprint packs` to list them.")
 
 
-def _latest_snapshot(snap_dir: Path, today: str) -> dict[str, set[str]] | None:
-    files = sorted(p for p in snap_dir.glob("*.jsonl") if p.stem < today)
+def _latest_snapshot(snap_dir: Path) -> tuple[dict[str, set[str]] | None, str | None]:
+    """Most recent earlier snapshot (any day, so same-day re-runs compare too)."""
+    files = sorted(snap_dir.glob("*.jsonl"))
     if not files:
-        return None
+        return None, None
     prev: dict[str, set[str]] = {}
     for line in files[-1].read_text(encoding="utf-8").splitlines():
         rec = json.loads(line)
         prev[rec["account_domain"]] = set(rec["tools"])
-    return prev
+    return prev, files[-1].stem
 
 
 def _write_csv(path: Path, rows: list[dict], fields: list[str]) -> None:
@@ -77,12 +78,15 @@ def _write_csv(path: Path, rows: list[dict], fields: list[str]) -> None:
 
 
 # ---------------------------------------------------------------- commands
-def _observe_live(domain: str, pack: dict, args) -> dict:
+def _observe_live(domain: str, pack: dict, args, renderer=None) -> dict:
     """Collect everything for one account from the network."""
     obs = {"fetched": False, "url": None, "html": "", "headers": {}, "txt": [], "mx": [],
            "dmarc": [], "mta_sts": None, "bimi": None, "security_txt": None, "subs": {},
            "pagespeed": None, "errors": []}
-    site = fetch.fetch_site(domain, pack["extra_paths"])
+    site = renderer.fetch_site(domain, pack["extra_paths"]) if renderer else fetch.fetch_site(domain, pack["extra_paths"])
+    if renderer and not site["ok"]:  # fall back to a plain request if the browser was blocked
+        plain = fetch.fetch_site(domain, pack["extra_paths"])
+        site = plain if plain["ok"] else site
     obs.update(fetched=site["ok"], url=site["url"], html=site["html"], headers=site["headers"])
     obs["errors"].append(site["error"])
     if not args.no_dns:
@@ -141,11 +145,12 @@ def cmd_scan(args) -> None:
     out_dir = Path(args.out)
     snap_dir = out_dir / "snapshots" / pack["pack"]
     snap_dir.mkdir(parents=True, exist_ok=True)
-    today = date.today().isoformat()
-    previous = _latest_snapshot(snap_dir, today)
+    stamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H%M%SZ")
+    previous, previous_name = _latest_snapshot(snap_dir)
 
     all_rows, summaries, snapshot = [], [], []
-    mode = "from raw file" if raw else "live"
+    mode = "from raw file" if raw else ("live, rendered in a browser" if args.render else "live")
+    renderer = fetch.Renderer().__enter__() if (args.render and raw is None) else None
     print(f"Scanning {len(accounts)} accounts with pack '{pack['pack']}' ({len(pack['tools'])} tools, {mode})")
     for i, domain in enumerate(accounts, 1):
         if raw is not None:
@@ -153,7 +158,7 @@ def cmd_scan(args) -> None:
                                       "dmarc": [], "mta_sts": None, "bimi": None, "security_txt": None,
                                       "subs": {}, "pagespeed": None, "errors": ["not in raw file"]}
         else:
-            obs = _observe_live(domain, pack, args)
+            obs = _observe_live(domain, pack, args, renderer)
 
         hits = []
         if obs["fetched"]:
@@ -179,6 +184,8 @@ def cmd_scan(args) -> None:
         if raw is None and args.delay and i < len(accounts):
             time.sleep(args.delay)
 
+    if renderer:
+        renderer.__exit__(None, None, None)
     out_dir.mkdir(parents=True, exist_ok=True)
     with (out_dir / "signals.jsonl").open("w", encoding="utf-8") as fh:
         for r in all_rows:
@@ -186,15 +193,21 @@ def cmd_scan(args) -> None:
     _write_csv(out_dir / "signals.csv", all_rows, signals.SIGNAL_FIELDS)
     summaries.sort(key=lambda s: -s["score"])
     _write_csv(out_dir / "accounts_summary.csv", summaries, signals.SUMMARY_FIELDS)
-    with (snap_dir / f"{today}.jsonl").open("w", encoding="utf-8") as fh:
+    with (snap_dir / f"{stamp}.jsonl").open("w", encoding="utf-8") as fh:
         for s in snapshot:
             fh.write(json.dumps(s) + "\n")
 
     print(f"\nWrote {len(all_rows)} signals for {len(summaries)} accounts to {out_dir}/")
     print("  accounts_summary.csv  one row per account, sorted by score (open in Sheets/Excel)")
     print("  signals.csv / .jsonl  every signal with evidence (load into BigQuery or your CRM)")
+    n_changes = sum(1 for r in all_rows if r["signal_type"] in ("tech_added", "tech_removed"))
     if previous is None:
-        print("  First run for this pack: run again next week to get tool added/removed signals.")
+        print("  First run for this pack: run again later to get tool added/removed signals.")
+    else:
+        print(f"  Compared with previous scan {previous_name}: {n_changes} tool(s) added or removed.")
+    (out_dir / "run_info.json").write_text(json.dumps({
+        "pack": pack["pack"], "scanned_at": stamp, "mode": mode, "accounts": len(summaries),
+        "previous_scan": previous_name, "changes": n_changes}, indent=2), encoding="utf-8")
 
 
 def cmd_discover(args) -> None:
@@ -234,6 +247,15 @@ def cmd_summary(args) -> None:
                  else (r.get(k) or "").replace("|", "/") for k, _ in cols]
         cells = [c if len(c) <= 140 else c[:137] + "..." for c in cells]
         print("| " + " | ".join(cells) + " |")
+    info_file = path.parent / "run_info.json"
+    if info_file.exists():
+        info = json.loads(info_file.read_text(encoding="utf-8"))
+        if info.get("previous_scan"):
+            print(f"\nCompared with previous scan `{info['previous_scan']}`: "
+                  f"{info.get('changes', 0)} tool(s) added or removed.")
+        else:
+            print("\nFirst scan for this pack: the next run will show tools added or removed.")
+        print(f"Mode: {info.get('mode', '')}.")
     errors = [r for r in rows if r.get("errors")]
     if errors:
         print(f"\n{len(errors)} account(s) had errors; see accounts_summary.csv (errors column).")
@@ -288,6 +310,9 @@ def main(argv=None) -> None:
     s.add_argument("--new-days", type=int, default=30, help="subdomain counts as new if first seen within N days")
     s.add_argument("--pagespeed", action="store_true", help="also get mobile PageSpeed score (set PAGESPEED_API_KEY)")
     s.add_argument("--no-dns", action="store_true", help="skip DNS lookups")
+    s.add_argument("--render", action="store_true",
+                   help="load pages in headless Chromium so tag-manager-injected tools are detected "
+                        "(needs requirements-render.txt + `python -m playwright install chromium`)")
     s.add_argument("--delay", type=float, default=1.0, help="seconds between accounts (be polite)")
     s.add_argument("--limit", type=int, help="only scan the first N accounts")
     s.add_argument("--from-raw", help="use data collected elsewhere (collectors/browser-collect.js) instead of fetching")

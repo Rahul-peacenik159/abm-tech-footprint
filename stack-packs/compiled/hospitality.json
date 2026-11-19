@@ -1,0 +1,987 @@
+{
+  "description": "Hotels, resorts and hotel management companies",
+  "extra_paths": [
+    "/meetings",
+    "/events",
+    "/offers"
+  ],
+  "interesting_subdomains": [
+    "app",
+    "book",
+    "booking",
+    "careers",
+    "dining",
+    "docs",
+    "events",
+    "groups",
+    "help",
+    "investors",
+    "jobs",
+    "login",
+    "loyalty",
+    "meetings",
+    "offers",
+    "portal",
+    "res",
+    "reservations",
+    "rewards",
+    "shop",
+    "spa",
+    "sso",
+    "status",
+    "store",
+    "support",
+    "weddings"
+  ],
+  "pack": "hospitality",
+  "plays": {
+    "competitor_found": "displacement_sequence",
+    "competitor_removed": "switch_window_outreach",
+    "complement_found": "integration_pitch",
+    "gap_found": "revenue_leak_audit",
+    "slow_site": "direct_booking_speed_audit",
+    "subdomain_new": "launch_congrats_touch",
+    "tool_added": "timing_trigger",
+    "tool_removed": "timing_trigger"
+  },
+  "seller": {
+    "competitors": [
+      "asksuite",
+      "hijiffy",
+      "quicktext"
+    ],
+    "complements": [
+      "synxis",
+      "ihotelier",
+      "cloudbeds",
+      "siteminder",
+      "mews",
+      "d_edge"
+    ],
+    "must_have_categories": [
+      "chat",
+      "booking_engine"
+    ],
+    "product": "Example: AI guest messaging and revenue capture for hotels"
+  },
+  "tools": {
+    "adobe": {
+      "category": "saas_signup",
+      "httparchive": null,
+      "id": "adobe",
+      "name": "Adobe (enterprise identity)",
+      "patterns": {
+        "dns_txt": [
+          "adobe-idp-site-verification"
+        ]
+      }
+    },
+    "amazon_ses": {
+      "category": "email_sending",
+      "httparchive": null,
+      "id": "amazon_ses",
+      "name": "Amazon SES",
+      "patterns": {
+        "spf": [
+          "amazonses.com"
+        ]
+      }
+    },
+    "apple_business": {
+      "category": "saas_signup",
+      "httparchive": null,
+      "id": "apple_business",
+      "name": "Apple (business services)",
+      "patterns": {
+        "dns_txt": [
+          "apple-domain-verification"
+        ]
+      }
+    },
+    "asksuite": {
+      "category": "chat",
+      "httparchive": null,
+      "id": "asksuite",
+      "name": "Asksuite",
+      "patterns": {
+        "html": [
+          "asksuite.com"
+        ]
+      }
+    },
+    "atlassian": {
+      "category": "saas_signup",
+      "httparchive": null,
+      "id": "atlassian",
+      "name": "Atlassian (Jira / Confluence)",
+      "patterns": {
+        "dns_txt": [
+          "atlassian-domain-verification"
+        ]
+      }
+    },
+    "bigcommerce": {
+      "category": "ecommerce_platform",
+      "httparchive": "BigCommerce",
+      "id": "bigcommerce",
+      "name": "BigCommerce",
+      "patterns": {
+        "html": [
+          "cdn11.bigcommerce.com"
+        ]
+      }
+    },
+    "calendly": {
+      "category": "scheduling",
+      "httparchive": null,
+      "id": "calendly",
+      "name": "Calendly",
+      "patterns": {
+        "html": [
+          "assets.calendly.com",
+          "calendly.com/assets/external/widget"
+        ]
+      }
+    },
+    "chili_piper": {
+      "category": "scheduling",
+      "httparchive": null,
+      "id": "chili_piper",
+      "name": "Chili Piper",
+      "patterns": {
+        "html": [
+          "js.chilipiper.com"
+        ]
+      }
+    },
+    "clearbit_reveal": {
+      "category": "visitor_id",
+      "httparchive": null,
+      "id": "clearbit_reveal",
+      "name": "Clearbit / Breeze Intelligence tag",
+      "patterns": {
+        "html": [
+          "tag.clearbitscripts.com"
+        ]
+      }
+    },
+    "cloudbeds": {
+      "category": "booking_engine",
+      "httparchive": null,
+      "id": "cloudbeds",
+      "name": "Cloudbeds",
+      "patterns": {
+        "html": [
+          "cloudbeds.com"
+        ]
+      }
+    },
+    "cloudflare": {
+      "category": "cdn_security",
+      "httparchive": "Cloudflare",
+      "id": "cloudflare",
+      "name": "Cloudflare",
+      "patterns": {
+        "headers": {
+          "cf-ray": "",
+          "server": "cloudflare"
+        }
+      }
+    },
+    "cookiebot": {
+      "category": "consent",
+      "httparchive": "Cookiebot",
+      "id": "cookiebot",
+      "name": "Cookiebot",
+      "patterns": {
+        "html": [
+          "consent.cookiebot.com"
+        ]
+      }
+    },
+    "cvent": {
+      "category": "group_sales",
+      "httparchive": null,
+      "id": "cvent",
+      "name": "Cvent (RFP / venue listing)",
+      "patterns": {
+        "html": [
+          "cvent.com"
+        ]
+      }
+    },
+    "d_edge": {
+      "category": "booking_engine",
+      "httparchive": null,
+      "id": "d_edge",
+      "name": "D-EDGE booking engine",
+      "patterns": {
+        "html": [
+          "secure-hotel-booking.com",
+          "d-edge.com"
+        ]
+      }
+    },
+    "demandbase": {
+      "category": "abm_platform",
+      "httparchive": "Demandbase",
+      "id": "demandbase",
+      "name": "Demandbase",
+      "patterns": {
+        "html": [
+          "tag.demandbase.com"
+        ]
+      }
+    },
+    "docusign": {
+      "category": "saas_signup",
+      "httparchive": null,
+      "id": "docusign",
+      "name": "DocuSign",
+      "patterns": {
+        "dns_txt": [
+          "docusign="
+        ]
+      }
+    },
+    "drift": {
+      "category": "chat",
+      "httparchive": "Drift",
+      "id": "drift",
+      "name": "Drift",
+      "patterns": {
+        "html": [
+          "js.driftt.com"
+        ]
+      }
+    },
+    "drupal": {
+      "category": "cms",
+      "httparchive": "Drupal",
+      "id": "drupal",
+      "name": "Drupal",
+      "patterns": {
+        "html": [
+          "drupal-settings-json",
+          "/sites/default/files/"
+        ]
+      }
+    },
+    "google_analytics": {
+      "category": "analytics",
+      "httparchive": "Google Analytics",
+      "id": "google_analytics",
+      "name": "Google Analytics",
+      "patterns": {
+        "html": [
+          "googletagmanager.com/gtag/js",
+          "google-analytics.com/analytics.js",
+          "google-analytics.com/ga.js"
+        ]
+      }
+    },
+    "google_tag_manager": {
+      "category": "tag_manager",
+      "httparchive": "Google Tag Manager",
+      "id": "google_tag_manager",
+      "name": "Google Tag Manager",
+      "patterns": {
+        "html": [
+          "googletagmanager.com/gtm.js",
+          "googletagmanager.com/ns.html"
+        ]
+      }
+    },
+    "google_workspace": {
+      "category": "email_provider",
+      "httparchive": null,
+      "id": "google_workspace",
+      "name": "Google Workspace",
+      "patterns": {
+        "mx": [
+          "google.com",
+          "googlemail.com"
+        ],
+        "spf": [
+          "_spf.google.com"
+        ]
+      }
+    },
+    "hijiffy": {
+      "category": "chat",
+      "httparchive": null,
+      "id": "hijiffy",
+      "name": "HiJiffy",
+      "patterns": {
+        "html": [
+          "hijiffy.com"
+        ]
+      }
+    },
+    "hotjar": {
+      "category": "session_recording",
+      "httparchive": "Hotjar",
+      "id": "hotjar",
+      "name": "Hotjar",
+      "patterns": {
+        "html": [
+          "static.hotjar.com",
+          "hotjar.com/c/hotjar-"
+        ]
+      }
+    },
+    "hubspot": {
+      "category": "marketing_automation",
+      "httparchive": "HubSpot",
+      "id": "hubspot",
+      "name": "HubSpot",
+      "patterns": {
+        "html": [
+          "js.hs-scripts.com",
+          "js.hsforms.net",
+          "js.hs-analytics.net",
+          "js.hs-banner.com"
+        ],
+        "spf": [
+          "hubspotemail.net"
+        ]
+      }
+    },
+    "ihotelier": {
+      "category": "booking_engine",
+      "httparchive": null,
+      "id": "ihotelier",
+      "name": "iHotelier (Amadeus, formerly TravelClick)",
+      "patterns": {
+        "html": [
+          "travelclick.com",
+          "ihotelier"
+        ]
+      }
+    },
+    "intercom": {
+      "category": "chat",
+      "httparchive": "Intercom",
+      "id": "intercom",
+      "name": "Intercom",
+      "patterns": {
+        "html": [
+          "widget.intercom.io",
+          "js.intercomcdn.com"
+        ]
+      }
+    },
+    "klaviyo": {
+      "category": "email_marketing",
+      "httparchive": "Klaviyo",
+      "id": "klaviyo",
+      "name": "Klaviyo",
+      "patterns": {
+        "html": [
+          "static.klaviyo.com",
+          "klaviyo.com/onsite"
+        ]
+      }
+    },
+    "linkedin_insight": {
+      "category": "ad_pixel",
+      "httparchive": "LinkedIn Insight Tag",
+      "id": "linkedin_insight",
+      "name": "LinkedIn Insight Tag",
+      "patterns": {
+        "html": [
+          "snap.licdn.com",
+          "_linkedin_partner_id"
+        ]
+      }
+    },
+    "livechat": {
+      "category": "chat",
+      "httparchive": "LiveChat",
+      "id": "livechat",
+      "name": "LiveChat",
+      "patterns": {
+        "html": [
+          "cdn.livechatinc.com"
+        ]
+      }
+    },
+    "magento": {
+      "category": "ecommerce_platform",
+      "httparchive": "Magento",
+      "id": "magento",
+      "name": "Magento / Adobe Commerce",
+      "patterns": {
+        "html": [
+          "mage/cookies",
+          "magento_"
+        ]
+      }
+    },
+    "mailchimp": {
+      "category": "email_marketing",
+      "httparchive": "MailChimp",
+      "id": "mailchimp",
+      "name": "Mailchimp",
+      "patterns": {
+        "html": [
+          "chimpstatic.com",
+          "list-manage.com"
+        ],
+        "spf": [
+          "servers.mcsv.net"
+        ]
+      }
+    },
+    "mailgun": {
+      "category": "email_sending",
+      "httparchive": null,
+      "id": "mailgun",
+      "name": "Mailgun",
+      "patterns": {
+        "spf": [
+          "mailgun.org"
+        ]
+      }
+    },
+    "marketo": {
+      "category": "marketing_automation",
+      "httparchive": "Marketo",
+      "id": "marketo",
+      "name": "Marketo",
+      "patterns": {
+        "html": [
+          "munchkin.marketo.net",
+          "mktoforms2"
+        ],
+        "spf": [
+          "mktomail.com"
+        ]
+      }
+    },
+    "meta_business": {
+      "category": "saas_signup",
+      "httparchive": null,
+      "id": "meta_business",
+      "name": "Meta Business Manager",
+      "patterns": {
+        "dns_txt": [
+          "facebook-domain-verification"
+        ]
+      }
+    },
+    "meta_pixel": {
+      "category": "ad_pixel",
+      "httparchive": "Facebook Pixel",
+      "id": "meta_pixel",
+      "name": "Meta Pixel",
+      "patterns": {
+        "html": [
+          "connect.facebook.net",
+          "fbq('init'",
+          "fbq(\"init\""
+        ]
+      }
+    },
+    "mews": {
+      "category": "booking_engine",
+      "httparchive": null,
+      "id": "mews",
+      "name": "Mews booking engine",
+      "patterns": {
+        "html": [
+          "mews.com/distributor",
+          "mews.li"
+        ]
+      }
+    },
+    "microsoft_365": {
+      "category": "email_provider",
+      "httparchive": null,
+      "id": "microsoft_365",
+      "name": "Microsoft 365",
+      "patterns": {
+        "dns_txt": [
+          "re:^ms=ms\\d+"
+        ],
+        "mx": [
+          "mail.protection.outlook.com"
+        ],
+        "spf": [
+          "spf.protection.outlook.com"
+        ]
+      }
+    },
+    "microsoft_clarity": {
+      "category": "session_recording",
+      "httparchive": "Microsoft Clarity",
+      "id": "microsoft_clarity",
+      "name": "Microsoft Clarity",
+      "patterns": {
+        "html": [
+          "clarity.ms/tag"
+        ]
+      }
+    },
+    "mimecast": {
+      "category": "email_security",
+      "httparchive": null,
+      "id": "mimecast",
+      "name": "Mimecast",
+      "patterns": {
+        "mx": [
+          "mimecast.com"
+        ]
+      }
+    },
+    "mutiny": {
+      "category": "web_personalization",
+      "httparchive": null,
+      "id": "mutiny",
+      "name": "Mutiny",
+      "patterns": {
+        "html": [
+          "mutinycdn.com"
+        ]
+      }
+    },
+    "netlify": {
+      "category": "hosting",
+      "httparchive": "Netlify",
+      "id": "netlify",
+      "name": "Netlify",
+      "patterns": {
+        "headers": {
+          "server": "netlify"
+        }
+      }
+    },
+    "onetrust": {
+      "category": "consent",
+      "httparchive": "OneTrust",
+      "id": "onetrust",
+      "name": "OneTrust",
+      "patterns": {
+        "dns_txt": [
+          "onetrust-domain-verification"
+        ],
+        "html": [
+          "cdn.cookielaw.org",
+          "optanon"
+        ]
+      }
+    },
+    "optimizely": {
+      "category": "ab_testing",
+      "httparchive": "Optimizely",
+      "id": "optimizely",
+      "name": "Optimizely",
+      "patterns": {
+        "html": [
+          "cdn.optimizely.com"
+        ]
+      }
+    },
+    "pardot": {
+      "category": "marketing_automation",
+      "httparchive": null,
+      "id": "pardot",
+      "name": "Salesforce Account Engagement (Pardot)",
+      "patterns": {
+        "html": [
+          "pi.pardot.com",
+          "go.pardot.com"
+        ]
+      }
+    },
+    "paypal": {
+      "category": "payments",
+      "httparchive": "PayPal",
+      "id": "paypal",
+      "name": "PayPal",
+      "patterns": {
+        "html": [
+          "paypal.com/sdk/js",
+          "paypalobjects.com"
+        ]
+      }
+    },
+    "proofpoint": {
+      "category": "email_security",
+      "httparchive": null,
+      "id": "proofpoint",
+      "name": "Proofpoint",
+      "patterns": {
+        "mx": [
+          "pphosted.com"
+        ]
+      }
+    },
+    "qualified": {
+      "category": "chat",
+      "httparchive": null,
+      "id": "qualified",
+      "name": "Qualified",
+      "patterns": {
+        "html": [
+          "js.qualified.com"
+        ]
+      }
+    },
+    "quicktext": {
+      "category": "chat",
+      "httparchive": null,
+      "id": "quicktext",
+      "name": "Quicktext",
+      "patterns": {
+        "html": [
+          "quicktext.im"
+        ]
+      }
+    },
+    "revinate": {
+      "category": "guest_crm",
+      "httparchive": null,
+      "id": "revinate",
+      "name": "Revinate",
+      "patterns": {
+        "html": [
+          "revinate.com"
+        ]
+      }
+    },
+    "salesforce": {
+      "category": "crm",
+      "httparchive": null,
+      "id": "salesforce",
+      "name": "Salesforce",
+      "patterns": {
+        "spf": [
+          "_spf.salesforce.com"
+        ]
+      }
+    },
+    "segment": {
+      "category": "cdp",
+      "httparchive": "Segment",
+      "id": "segment",
+      "name": "Segment",
+      "patterns": {
+        "html": [
+          "cdn.segment.com/analytics.js",
+          "cdn.segment.io"
+        ]
+      }
+    },
+    "sendgrid": {
+      "category": "email_sending",
+      "httparchive": null,
+      "id": "sendgrid",
+      "name": "SendGrid",
+      "patterns": {
+        "spf": [
+          "sendgrid.net"
+        ]
+      }
+    },
+    "shopify": {
+      "category": "ecommerce_platform",
+      "httparchive": "Shopify",
+      "id": "shopify",
+      "name": "Shopify",
+      "patterns": {
+        "html": [
+          "cdn.shopify.com",
+          "myshopify.com"
+        ]
+      }
+    },
+    "siteminder": {
+      "category": "booking_engine",
+      "httparchive": null,
+      "id": "siteminder",
+      "name": "SiteMinder booking engine",
+      "patterns": {
+        "html": [
+          "book-directonline.com",
+          "siteminder.com"
+        ]
+      }
+    },
+    "sixsense": {
+      "category": "abm_platform",
+      "httparchive": "6sense",
+      "id": "sixsense",
+      "name": "6sense",
+      "patterns": {
+        "html": [
+          "j.6sc.co"
+        ]
+      }
+    },
+    "slack": {
+      "category": "saas_signup",
+      "httparchive": null,
+      "id": "slack",
+      "name": "Slack",
+      "patterns": {
+        "dns_txt": [
+          "slack-domain-verification"
+        ]
+      }
+    },
+    "squarespace": {
+      "category": "cms",
+      "httparchive": "Squarespace",
+      "id": "squarespace",
+      "name": "Squarespace",
+      "patterns": {
+        "html": [
+          "static1.squarespace.com"
+        ]
+      }
+    },
+    "stripe": {
+      "category": "payments",
+      "httparchive": "Stripe",
+      "id": "stripe",
+      "name": "Stripe",
+      "patterns": {
+        "dns_txt": [
+          "stripe-verification"
+        ],
+        "html": [
+          "js.stripe.com"
+        ]
+      }
+    },
+    "synxis": {
+      "category": "booking_engine",
+      "httparchive": null,
+      "id": "synxis",
+      "name": "SynXis Booking Engine (Sabre)",
+      "patterns": {
+        "html": [
+          "synxis.com"
+        ]
+      }
+    },
+    "tawk": {
+      "category": "chat",
+      "httparchive": "Tawk.to",
+      "id": "tawk",
+      "name": "Tawk.to",
+      "patterns": {
+        "html": [
+          "embed.tawk.to"
+        ]
+      }
+    },
+    "tidio": {
+      "category": "chat",
+      "httparchive": "Tidio",
+      "id": "tidio",
+      "name": "Tidio",
+      "patterns": {
+        "html": [
+          "code.tidio.co"
+        ]
+      }
+    },
+    "tripadvisor_widget": {
+      "category": "reviews_widget",
+      "httparchive": null,
+      "id": "tripadvisor_widget",
+      "name": "Tripadvisor widget",
+      "patterns": {
+        "html": [
+          "tripadvisor.com/widgetembed",
+          "jscache.com/wejs"
+        ]
+      }
+    },
+    "triptease": {
+      "category": "direct_booking_marketing",
+      "httparchive": null,
+      "id": "triptease",
+      "name": "Triptease",
+      "patterns": {
+        "html": [
+          "triptease.io"
+        ]
+      }
+    },
+    "trustyou": {
+      "category": "reviews_widget",
+      "httparchive": null,
+      "id": "trustyou",
+      "name": "TrustYou",
+      "patterns": {
+        "html": [
+          "trustyou.com"
+        ]
+      }
+    },
+    "typeform": {
+      "category": "forms",
+      "httparchive": null,
+      "id": "typeform",
+      "name": "Typeform",
+      "patterns": {
+        "html": [
+          "embed.typeform.com"
+        ]
+      }
+    },
+    "vercel": {
+      "category": "hosting",
+      "httparchive": "Vercel",
+      "id": "vercel",
+      "name": "Vercel",
+      "patterns": {
+        "headers": {
+          "server": "vercel",
+          "x-vercel-id": ""
+        }
+      }
+    },
+    "vidyard": {
+      "category": "video",
+      "httparchive": "Vidyard",
+      "id": "vidyard",
+      "name": "Vidyard",
+      "patterns": {
+        "html": [
+          "play.vidyard.com"
+        ]
+      }
+    },
+    "vimeo": {
+      "category": "video",
+      "httparchive": "Vimeo",
+      "id": "vimeo",
+      "name": "Vimeo",
+      "patterns": {
+        "html": [
+          "player.vimeo.com"
+        ]
+      }
+    },
+    "vwo": {
+      "category": "ab_testing",
+      "httparchive": "VWO",
+      "id": "vwo",
+      "name": "VWO",
+      "patterns": {
+        "html": [
+          "dev.visualwebsiteoptimizer.com"
+        ]
+      }
+    },
+    "webflow": {
+      "category": "cms",
+      "httparchive": "Webflow",
+      "id": "webflow",
+      "name": "Webflow",
+      "patterns": {
+        "html": [
+          "website-files.com",
+          "data-wf-site"
+        ]
+      }
+    },
+    "wistia": {
+      "category": "video",
+      "httparchive": "Wistia",
+      "id": "wistia",
+      "name": "Wistia",
+      "patterns": {
+        "html": [
+          "fast.wistia.com",
+          "fast.wistia.net"
+        ]
+      }
+    },
+    "wix": {
+      "category": "cms",
+      "httparchive": "Wix",
+      "id": "wix",
+      "name": "Wix",
+      "patterns": {
+        "html": [
+          "static.wixstatic.com"
+        ]
+      }
+    },
+    "woocommerce": {
+      "category": "ecommerce_platform",
+      "httparchive": "WooCommerce",
+      "id": "woocommerce",
+      "name": "WooCommerce",
+      "patterns": {
+        "html": [
+          "woocommerce"
+        ]
+      }
+    },
+    "wordpress": {
+      "category": "cms",
+      "httparchive": "WordPress",
+      "id": "wordpress",
+      "name": "WordPress",
+      "patterns": {
+        "html": [
+          "/wp-content/",
+          "/wp-includes/"
+        ]
+      }
+    },
+    "youtube": {
+      "category": "video",
+      "httparchive": "YouTube",
+      "id": "youtube",
+      "name": "YouTube embed",
+      "patterns": {
+        "html": [
+          "youtube.com/embed",
+          "youtube-nocookie.com/embed"
+        ]
+      }
+    },
+    "zendesk": {
+      "category": "chat",
+      "httparchive": "Zendesk",
+      "id": "zendesk",
+      "name": "Zendesk",
+      "patterns": {
+        "html": [
+          "static.zdassets.com"
+        ],
+        "spf": [
+          "mail.zendesk.com"
+        ]
+      }
+    },
+    "zoom": {
+      "category": "saas_signup",
+      "httparchive": null,
+      "id": "zoom",
+      "name": "Zoom",
+      "patterns": {
+        "dns_txt": [
+          "zoom_verify_"
+        ]
+      }
+    }
+  },
+  "weights": {
+    "competitor_found": 30,
+    "competitor_removed": 35,
+    "complement_found": 15,
+    "gap_found": 20,
+    "slow_site": 10,
+    "subdomain_new": 10,
+    "tool_added": 25,
+    "tool_removed": 20
+  }
+}

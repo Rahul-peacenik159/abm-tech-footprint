@@ -1,0 +1,50 @@
+# TEMPLATE: copy this file to stack-packs/<your-industry>.yaml and fill it in.
+#
+# Fastest way to fill it:
+#   1. List 5 to 10 companies you KNOW use each competitor / complement tool.
+#   2. Run:  python -m footprint discover <their-domain>
+#      It prints every third-party host their site loads. The hosts that repeat
+#      across a tool's customers are that tool's fingerprint.
+#   3. Add the tool below with those hosts as `html` patterns.
+#   4. Run:  python -m footprint scan --pack stack-packs/<your-industry>.yaml --domains <a few domains>
+#
+# See docs/stack-packs.md for every field, and docs/build-a-pack-with-ai.md for a
+# copy-paste prompt that drafts a pack for any industry.
+
+pack: my-industry
+description: One line on who these accounts are
+extends: [_core]          # keeps the cross-industry tools (CMS, chat, email, DNS...)
+version: 1
+
+seller:
+  product: "What you sell, in one line"
+  competitors: []          # tool ids you replace       -> displacement play
+  complements: []          # tool ids you integrate with -> integration play
+  must_have_categories: [] # categories you expect a good-fit account to have; missing -> gap play
+
+plays:
+  competitor_found: displacement_sequence
+  complement_found: integration_pitch
+  gap_found: gap_audit
+  tool_added: timing_trigger
+  competitor_removed: switch_window_outreach
+  subdomain_new: launch_congrats_touch
+  slow_site: speed_audit
+
+interesting_subdomains: []   # e.g. [book, order, apply, portal]
+extra_paths: []              # extra pages to scan, e.g. ["/pricing"]
+
+# weights:                  # optional: override _core weights
+#   competitor_found: 40
+
+tools:
+  example_tool:
+    name: Example Tool
+    category: example_category
+    patterns:
+      html: ["cdn.exampletool.com"]        # substring in page HTML
+      # headers: {"x-powered-by": "example"}
+      # dns_txt: ["exampletool-verification"]
+      # spf: ["mail.exampletool.com"]
+      # mx: ["exampletool-mx.com"]
+    # httparchive: Example Tool          # exact HTTP Archive technology name, if any

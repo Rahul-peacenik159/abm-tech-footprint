@@ -1,0 +1,60 @@
+# Higher education pack: universities, colleges, online programs.
+#
+# Admissions CRMs (via apply portals), chatbots, virtual tours and event tools
+# are visible on the site and its subdomains.
+
+pack: higher-ed
+description: Universities, colleges and online program providers
+extends: [_core]
+version: 1
+
+# EXAMPLE seller: an admissions chatbot. Edit for your product.
+seller:
+  product: "Example: AI admissions chatbot"
+  competitors: [ocelot, mainstay]
+  complements: [slate, element451]
+  must_have_categories: [chat, virtual_tour]
+
+plays:
+  competitor_found: displacement_sequence
+  complement_found: integration_pitch
+  gap_found: enrollment_funnel_audit
+  tool_added: timing_trigger
+  competitor_removed: switch_window_outreach
+  subdomain_new: launch_congrats_touch
+  slow_site: prospective_student_speed_audit
+
+interesting_subdomains: [apply, admissions, admission, visit, give, alumni, online, grad, canvas, lms, events]
+extra_paths: ["/admissions"]
+
+tools:
+  slate:
+    name: Slate (Technolutions)
+    category: admissions_crm
+    patterns:
+      html: ["technolutions.net"]
+  element451:
+    name: Element451
+    category: admissions_crm
+    patterns:
+      html: ["element451.com", "451.io"]
+  ocelot:
+    name: Ocelot chatbot
+    category: chat
+    patterns:
+      html: ["ocelotbot.com"]
+  mainstay:
+    name: Mainstay
+    category: chat
+    patterns:
+      html: ["mainstay.com"]
+  youvisit:
+    name: YouVisit
+    category: virtual_tour
+    patterns:
+      html: ["youvisit.com"]
+  concept3d:
+    name: Concept3D
+    category: virtual_tour
+    patterns:
+      html: ["concept3d.com"]

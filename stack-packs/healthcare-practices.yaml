@@ -1,0 +1,66 @@
+# Healthcare practices pack: dental, dermatology, physical therapy, vet,
+# multi-location clinic groups.
+#
+# Online booking, patient intake, reviews and messaging widgets are visible.
+# Company-level data only: never put patient or personal data in this repo.
+
+pack: healthcare-practices
+description: Clinics, dental and specialty practice groups
+extends: [_core]
+version: 1
+
+# EXAMPLE seller: an online patient scheduling tool. Edit for your product.
+seller:
+  product: "Example: online patient scheduling for practices"
+  competitors: [zocdoc, nexhealth, luma_health]
+  complements: [weave, podium, birdeye]
+  must_have_categories: [online_booking]
+
+plays:
+  competitor_found: displacement_sequence
+  complement_found: integration_pitch
+  gap_found: no_online_booking_audit
+  tool_added: timing_trigger
+  competitor_removed: switch_window_outreach
+  subdomain_new: launch_congrats_touch
+  slow_site: mobile_booking_speed_audit
+
+interesting_subdomains: [portal, patient, book, appointments, intake, pay, billing, locations]
+extra_paths: ["/contact", "/appointments"]
+
+tools:
+  zocdoc:
+    name: Zocdoc
+    category: online_booking
+    patterns:
+      html: ["zocdoc.com"]
+  nexhealth:
+    name: NexHealth
+    category: online_booking
+    patterns:
+      html: ["nexhealth.com"]
+  luma_health:
+    name: Luma Health
+    category: online_booking
+    patterns:
+      html: ["lumahealth.io"]
+  phreesia:
+    name: Phreesia
+    category: patient_intake
+    patterns:
+      html: ["phreesia.net", "phreesia.com"]
+  weave:
+    name: Weave
+    category: messaging
+    patterns:
+      html: ["getweave.com"]
+  podium:
+    name: Podium
+    category: messaging_reviews
+    patterns:
+      html: ["podium.com"]
+  birdeye:
+    name: Birdeye
+    category: reviews_widget
+    patterns:
+      html: ["birdeye.com"]

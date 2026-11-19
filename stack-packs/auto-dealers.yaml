@@ -1,0 +1,59 @@
+# Auto dealers pack: franchise and independent dealerships, dealer groups.
+#
+# Dealer website platforms, chat, trade-in and messaging tools are all visible.
+
+pack: auto-dealers
+description: Car dealerships and dealer groups
+extends: [_core]
+version: 1
+
+# EXAMPLE seller: a dealer chat and lead-response tool. Edit for your product.
+seller:
+  product: "Example: AI chat and lead response for dealerships"
+  competitors: [carnow, gubagoo, podium]
+  complements: [dealer_com, dealeron, dealer_inspire]
+  must_have_categories: [chat]
+
+plays:
+  competitor_found: displacement_sequence
+  complement_found: integration_pitch
+  gap_found: missed_leads_audit
+  tool_added: timing_trigger
+  competitor_removed: switch_window_outreach
+  subdomain_new: launch_congrats_touch
+  slow_site: vdp_speed_audit
+
+interesting_subdomains: [inventory, service, parts, finance, credit, trade, shop]
+extra_paths: []
+
+tools:
+  dealer_com:
+    name: Dealer.com (Cox Automotive)
+    category: dealer_website
+    patterns:
+      html: ["dealer.com", "static.dealer.com"]
+  dealeron:
+    name: DealerOn
+    category: dealer_website
+    patterns:
+      html: ["dealeron.com"]
+  dealer_inspire:
+    name: Dealer Inspire
+    category: dealer_website
+    patterns:
+      html: ["dealerinspire.com"]
+  carnow:
+    name: CarNow
+    category: chat
+    patterns:
+      html: ["carnow.com"]
+  gubagoo:
+    name: Gubagoo
+    category: chat
+    patterns:
+      html: ["gubagoo.com", "gubagoo.io"]
+  podium:
+    name: Podium
+    category: messaging_reviews
+    patterns:
+      html: ["podium.com"]

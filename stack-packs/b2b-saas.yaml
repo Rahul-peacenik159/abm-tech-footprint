@@ -1,0 +1,80 @@
+# B2B SaaS pack: software companies selling to businesses.
+#
+# Their websites carry the whole demand-gen stack: marketing automation,
+# visitor ID, ABM platforms, chat, scheduling, interactive demos, review badges.
+
+pack: b2b-saas
+description: B2B software companies
+extends: [_core]
+version: 1
+
+# EXAMPLE seller: a website visitor identification / ABM tool. Edit for your product.
+seller:
+  product: "Example: website visitor identification for B2B"
+  competitors: [sixsense, demandbase, clearbit_reveal, warmly, zoominfo_websights, dealfront]
+  complements: [hubspot, marketo, salesforce, chili_piper]
+  must_have_categories: [marketing_automation, scheduling]
+
+plays:
+  competitor_found: displacement_sequence
+  complement_found: integration_pitch
+  gap_found: pipeline_gap_audit
+  tool_added: timing_trigger
+  competitor_removed: switch_window_outreach
+  subdomain_new: launch_congrats_touch
+  slow_site: site_conversion_audit
+
+interesting_subdomains: [app, docs, status, trust, developers, api, community, academy, partners, marketplace, changelog]
+extra_paths: ["/pricing", "/demo"]
+
+tools:
+  # ---------- Visitor ID ----------
+  warmly:
+    name: Warmly
+    category: visitor_id
+    patterns:
+      html: ["getwarmly.com", "warmly.ai"]
+  zoominfo_websights:
+    name: ZoomInfo WebSights
+    category: visitor_id
+    patterns:
+      html: ["ws.zoominfo.com"]
+  dealfront:
+    name: Dealfront (Leadfeeder)
+    category: visitor_id
+    patterns:
+      html: ["lfeeder.com"]
+  apollo_tracker:
+    name: Apollo website tracker
+    category: visitor_id
+    patterns:
+      html: ["assets.apollo.io/micro/website-tracker"]
+
+  # ---------- Interactive demos ----------
+  navattic:
+    name: Navattic
+    category: interactive_demo
+    patterns:
+      html: ["navattic.com"]
+  storylane:
+    name: Storylane
+    category: interactive_demo
+    patterns:
+      html: ["storylane.io"]
+  reprise:
+    name: Reprise
+    category: interactive_demo
+    patterns:
+      html: ["getreprise.com"]
+
+  # ---------- Review badges ----------
+  g2_badge:
+    name: G2 badge / tracking
+    category: review_badges
+    patterns:
+      html: ["g2crowd.com", "g2.com/products"]
+  capterra_badge:
+    name: Capterra badge
+    category: review_badges
+    patterns:
+      html: ["capterra.com"]

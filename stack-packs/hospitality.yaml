@@ -1,0 +1,117 @@
+# Hospitality pack: hotels, resorts, hotel management companies.
+#
+# Hotels sell rooms, events and add-ons through their website, so most of the
+# guest-facing stack is visible: booking engine, chat/messaging, reviews,
+# group/event RFP tools.
+
+pack: hospitality
+description: Hotels, resorts and hotel management companies
+extends: [_core]
+version: 1
+
+# ---------------------------------------------------------------------------
+# SELLER CONFIG: edit this block for YOUR product. This is the only part most
+# people need to change. Use tool ids from this file or _core.yaml.
+# EXAMPLE below: a seller of AI guest messaging / revenue capture for hotels.
+# ---------------------------------------------------------------------------
+seller:
+  product: "Example: AI guest messaging and revenue capture for hotels"
+  competitors: [asksuite, hijiffy, quicktext]
+  complements: [synxis, ihotelier, cloudbeds, siteminder, mews, d_edge]
+  must_have_categories: [chat, booking_engine]
+
+plays:
+  competitor_found: displacement_sequence
+  complement_found: integration_pitch
+  gap_found: revenue_leak_audit
+  tool_added: timing_trigger
+  competitor_removed: switch_window_outreach
+  subdomain_new: launch_congrats_touch
+  slow_site: direct_booking_speed_audit
+
+interesting_subdomains: [book, booking, reservations, res, events, meetings, groups, weddings, spa, dining, rewards, loyalty, offers]
+
+# Optional extra pages to scan (relative paths). Booking and event tools often
+# live off the homepage.
+extra_paths: ["/meetings", "/events", "/offers"]
+
+tools:
+  # ---------- Booking engines ----------
+  synxis:
+    name: SynXis Booking Engine (Sabre)
+    category: booking_engine
+    patterns:
+      html: ["synxis.com"]
+  ihotelier:
+    name: iHotelier (Amadeus, formerly TravelClick)
+    category: booking_engine
+    patterns:
+      html: ["travelclick.com", "ihotelier"]
+  cloudbeds:
+    name: Cloudbeds
+    category: booking_engine
+    patterns:
+      html: ["cloudbeds.com"]
+  siteminder:
+    name: SiteMinder booking engine
+    category: booking_engine
+    patterns:
+      html: ["book-directonline.com", "siteminder.com"]
+  mews:
+    name: Mews booking engine
+    category: booking_engine
+    patterns:
+      html: ["mews.com/distributor", "mews.li"]
+  d_edge:
+    name: D-EDGE booking engine
+    category: booking_engine
+    patterns:
+      html: ["secure-hotel-booking.com", "d-edge.com"]
+
+  # ---------- Direct booking marketing ----------
+  triptease:
+    name: Triptease
+    category: direct_booking_marketing
+    patterns:
+      html: ["triptease.io"]
+  revinate:
+    name: Revinate
+    category: guest_crm
+    patterns:
+      html: ["revinate.com"]
+
+  # ---------- Chat and guest messaging ----------
+  asksuite:
+    name: Asksuite
+    category: chat
+    patterns:
+      html: ["asksuite.com"]
+  hijiffy:
+    name: HiJiffy
+    category: chat
+    patterns:
+      html: ["hijiffy.com"]
+  quicktext:
+    name: Quicktext
+    category: chat
+    patterns:
+      html: ["quicktext.im"]
+
+  # ---------- Reviews ----------
+  trustyou:
+    name: TrustYou
+    category: reviews_widget
+    patterns:
+      html: ["trustyou.com"]
+  tripadvisor_widget:
+    name: Tripadvisor widget
+    category: reviews_widget
+    patterns:
+      html: ["tripadvisor.com/widgetembed", "jscache.com/wejs"]
+
+  # ---------- Groups and events ----------
+  cvent:
+    name: Cvent (RFP / venue listing)
+    category: group_sales
+    patterns:
+      html: ["cvent.com"]

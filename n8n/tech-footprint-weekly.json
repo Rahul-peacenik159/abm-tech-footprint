@@ -1,0 +1,274 @@
+{
+  "name": "ABM tech footprint (weekly)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "6efb9b5b-b9c9-49ff-96cb-ca612f345aff",
+      "name": "Manual run",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "id": "2069cdc2-2e80-45f7-9043-dd67df5259af",
+      "name": "Every Monday 7am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://raw.githubusercontent.com/rahul-tulsiani159/abm-tech-footprint/main/stack-packs/compiled/hospitality.json",
+        "options": {}
+      },
+      "id": "b6ddde59-e584-4d65-86c2-f9c162a63dfa",
+      "name": "Load stack pack",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        100
+      ],
+      "notes": "Change 'hospitality.json' to any pack in stack-packs/compiled/. Point it at your fork to use your own edited pack."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Replace this node with a Google Sheets, BigQuery or HubSpot node that\n// outputs one item per account with a `domain` field.\nconst domains = [\n  'marriott.com',\n  'hilton.com',\n  'hyatt.com',\n];\nreturn domains.map((domain) => ({ json: { domain } }));\n"
+      },
+      "id": "49681088-4361-4206-911b-62b5d0eb1c5f",
+      "name": "Accounts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://{{ $json.domain }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "abm-tech-footprint/0.1 (+https://github.com/rahul-tulsiani159/abm-tech-footprint)"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "text"
+            }
+          },
+          "timeout": 20000
+        }
+      },
+      "id": "cb1a664b-1738-4def-b29f-df6ddf43685e",
+      "name": "Fetch homepage",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        720,
+        100
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "=https://dns.google/resolve?name={{ $('Accounts').item.json.domain }}&type=TXT",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "b9ecabe6-01bb-4f43-9650-5ba138ccc367",
+      "name": "DNS TXT",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        960,
+        100
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "=https://dns.google/resolve?name={{ $('Accounts').item.json.domain }}&type=MX",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "e9702a38-83f8-4bab-911f-82be6fb6adc9",
+      "name": "DNS MX",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1200,
+        100
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const pack = $('Load stack pack').first().json;\nconst accounts = $('Accounts').all();\nconst pages = $('Fetch homepage').all();\nconst txts = $('DNS TXT').all();\nconst mxs = $('DNS MX').all();\nconst observedAt = new Date().toISOString();\n\nconst HOSTLIKE = /^[a-z0-9.-]+\\.[a-z]{2,}(\\/.*)?$/;\nconst esc = (s) => s.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');\nconst toRegex = (p) =>\n  p.startsWith('re:') ? new RegExp(p.slice(3), 'i')\n  : HOSTLIKE.test(p) ? new RegExp('(?<![a-z0-9-])' + esc(p))\n  : new RegExp(esc(p));\nconst cache = {};\nconst match = (p, text) => (cache[p] ||= toRegex(p)).test(text);\nconst isOwn = (p, own) => HOSTLIKE.test(p) && (p.split('/')[0] === own || p.split('/')[0].endsWith('.' + own));\n\nconst roleOf = (id) =>\n  (pack.seller.competitors || []).includes(id) ? 'competitor'\n  : (pack.seller.complements || []).includes(id) ? 'complement' : 'neutral';\n\nconst dnsData = (item) => ((item && item.json && item.json.Answer) || [])\n  .map((a) => String(a.data || '').replace(/\" \"/g, '').replace(/^\"|\"$/g, '').toLowerCase());\n\nconst out = [];\naccounts.forEach((acc, i) => {\n  const domain = acc.json.domain.toLowerCase().replace(/^https?:\\/\\//, '').replace(/^www\\./, '').split('/')[0];\n  const page = pages[i] ? pages[i].json : {};\n  const fetched = !page.error && typeof page.body === 'string' && (page.statusCode || 200) < 400;\n  const html = fetched ? page.body.toLowerCase() : '';\n  const headers = {};\n  Object.entries(page.headers || {}).forEach(([k, v]) => { headers[k.toLowerCase()] = String(v).toLowerCase(); });\n  const txt = dnsData(txts[i]);\n  const spf = txt.filter((t) => t.startsWith('v=spf1'));\n  const otherTxt = txt.filter((t) => !t.startsWith('v=spf1'));\n  const mx = dnsData(mxs[i]).map((m) => m.split(' ').pop().replace(/\\.$/, ''));\n\n  const row = (extra) => ({\n    account_domain: domain, signal_type: '', signal_value: '', tool_name: '', category: '', role: '',\n    weight: 0, play: '', source: '', evidence: '', evidence_url: fetched ? `https://${domain}` : '',\n    pack: pack.pack, observed_at: observedAt, ...extra,\n  });\n\n  const found = {};\n  for (const tool of Object.values(pack.tools)) {\n    const p = tool.patterns || {};\n    let ev = null;\n    for (const s of p.html || []) if (!ev && !isOwn(s, domain) && match(s, html)) ev = ['homepage', s];\n    for (const [h, needle] of Object.entries(p.headers || {}))\n      if (!ev && h in headers && (needle === '' || headers[h].includes(needle))) ev = ['headers', `${h}: ${needle || '(present)'}`];\n    for (const s of p.dns_txt || []) if (!ev && otherTxt.some((r) => match(s, r))) ev = ['dns_txt', s];\n    for (const s of p.spf || []) if (!ev && spf.some((r) => match(s, r))) ev = ['spf', s];\n    for (const s of p.mx || []) if (!ev && mx.some((r) => match(s, r))) ev = ['dns_mx', s];\n    if (!ev) continue;\n    found[tool.id] = tool;\n    const role = roleOf(tool.id);\n    const key = role === 'competitor' ? 'competitor_found' : role === 'complement' ? 'complement_found' : null;\n    out.push(row({\n      signal_type: 'tech_detected', signal_value: tool.id, tool_name: tool.name, category: tool.category,\n      role, weight: key ? pack.weights[key] || 0 : 0, play: key ? pack.plays[key] || '' : '',\n      source: ev[0], evidence: ev[1],\n    }));\n  }\n\n  if (fetched) {\n    const cats = new Set(Object.values(found).map((t) => t.category));\n    for (const cat of pack.seller.must_have_categories || []) {\n      if (!cats.has(cat)) out.push(row({\n        signal_type: 'gap', signal_value: cat, category: cat, role: 'gap',\n        weight: pack.weights.gap_found || 0, play: pack.plays.gap_found || '',\n        source: 'homepage', evidence: `no ${cat} tool detected`,\n      }));\n    }\n  } else {\n    out.push(row({ signal_type: 'fetch_error', evidence: String(page.error?.message || page.error || 'no response').slice(0, 300) }));\n  }\n});\n\nreturn out.map((json) => ({ json }));\n"
+      },
+      "id": "e7f5d200-75f3-404f-9d3a-692996daee8f",
+      "name": "Detect tools and score",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "projectId": {
+          "__rl": true,
+          "value": "YOUR_GCP_PROJECT",
+          "mode": "id"
+        },
+        "datasetId": {
+          "__rl": true,
+          "value": "abm",
+          "mode": "id"
+        },
+        "tableId": {
+          "__rl": true,
+          "value": "signals",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "506a607a-9e8e-4df7-84b8-bd949b437dea",
+      "name": "Write to BigQuery abm.signals",
+      "type": "n8n-nodes-base.googleBigQuery",
+      "typeVersion": 2.1,
+      "position": [
+        1680,
+        100
+      ],
+      "notes": "Add your Google BigQuery credential and project. Run bigquery/00_schema.sql first. Swap for Google Sheets or HubSpot if you do not use BigQuery."
+    }
+  ],
+  "connections": {
+    "Manual run": {
+      "main": [
+        [
+          {
+            "node": "Load stack pack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Monday 7am": {
+      "main": [
+        [
+          {
+            "node": "Load stack pack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load stack pack": {
+      "main": [
+        [
+          {
+            "node": "Accounts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Accounts": {
+      "main": [
+        [
+          {
+            "node": "Fetch homepage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch homepage": {
+      "main": [
+        [
+          {
+            "node": "DNS TXT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DNS TXT": {
+      "main": [
+        [
+          {
+            "node": "DNS MX",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DNS MX": {
+      "main": [
+        [
+          {
+            "node": "Detect tools and score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Detect tools and score": {
+      "main": [
+        [
+          {
+            "node": "Write to BigQuery abm.signals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}

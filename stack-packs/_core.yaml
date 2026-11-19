@@ -1,0 +1,425 @@
+# Core fingerprints shared by every pack.
+#
+# Every industry pack lists `extends: [_core]`, so these tools are always detected.
+# Patterns are lowercase substrings unless they start with "re:" (then a regex).
+#
+# Where each pattern is checked:
+#   html        page HTML (script src, link href, inline code, meta tags)
+#   headers     HTTP response headers  {header-name: substring}  ("" = header present)
+#   dns_txt     TXT records on the root domain (SaaS verification tokens)
+#   spf         the SPF TXT record (email sending services)
+#   mx          MX records (email provider and email security)
+#   httparchive the exact technology name used by HTTP Archive / Wappalyzer rules,
+#               used to generate the BigQuery query (optional)
+#
+# These are a starter set. Use `python -m footprint discover <domain>` on known
+# customers of a tool to confirm or add patterns, and send a PR.
+
+pack: _core
+description: Cross-industry website, email and SaaS fingerprints
+version: 1
+
+tools:
+
+  # ---------- Tags and analytics ----------
+  google_tag_manager:
+    name: Google Tag Manager
+    category: tag_manager
+    patterns:
+      html: ["googletagmanager.com/gtm.js", "googletagmanager.com/ns.html"]
+    httparchive: Google Tag Manager
+  google_analytics:
+    name: Google Analytics
+    category: analytics
+    patterns:
+      html: ["googletagmanager.com/gtag/js", "google-analytics.com/analytics.js", "google-analytics.com/ga.js"]
+    httparchive: Google Analytics
+  meta_pixel:
+    name: Meta Pixel
+    category: ad_pixel
+    patterns:
+      html: ["connect.facebook.net", "fbq('init'", "fbq(\"init\""]
+    httparchive: Facebook Pixel
+  linkedin_insight:
+    name: LinkedIn Insight Tag
+    category: ad_pixel
+    patterns:
+      html: ["snap.licdn.com", "_linkedin_partner_id"]
+    httparchive: LinkedIn Insight Tag
+  hotjar:
+    name: Hotjar
+    category: session_recording
+    patterns:
+      html: ["static.hotjar.com", "hotjar.com/c/hotjar-"]
+    httparchive: Hotjar
+  microsoft_clarity:
+    name: Microsoft Clarity
+    category: session_recording
+    patterns:
+      html: ["clarity.ms/tag"]
+    httparchive: Microsoft Clarity
+  segment:
+    name: Segment
+    category: cdp
+    patterns:
+      html: ["cdn.segment.com/analytics.js", "cdn.segment.io"]
+    httparchive: Segment
+  optimizely:
+    name: Optimizely
+    category: ab_testing
+    patterns:
+      html: ["cdn.optimizely.com"]
+    httparchive: Optimizely
+  vwo:
+    name: VWO
+    category: ab_testing
+    patterns:
+      html: ["dev.visualwebsiteoptimizer.com"]
+    httparchive: VWO
+
+  # ---------- Marketing automation and CRM ----------
+  hubspot:
+    name: HubSpot
+    category: marketing_automation
+    patterns:
+      html: ["js.hs-scripts.com", "js.hsforms.net", "js.hs-analytics.net", "js.hs-banner.com"]
+      spf: ["hubspotemail.net"]
+    httparchive: HubSpot
+  marketo:
+    name: Marketo
+    category: marketing_automation
+    patterns:
+      html: ["munchkin.marketo.net", "mktoforms2"]
+      spf: ["mktomail.com"]
+    httparchive: Marketo
+  pardot:
+    name: Salesforce Account Engagement (Pardot)
+    category: marketing_automation
+    patterns:
+      html: ["pi.pardot.com", "go.pardot.com"]
+  salesforce:
+    name: Salesforce
+    category: crm
+    patterns:
+      spf: ["_spf.salesforce.com"]
+  mailchimp:
+    name: Mailchimp
+    category: email_marketing
+    patterns:
+      html: ["chimpstatic.com", "list-manage.com"]
+      spf: ["servers.mcsv.net"]
+    httparchive: MailChimp
+  klaviyo:
+    name: Klaviyo
+    category: email_marketing
+    patterns:
+      html: ["static.klaviyo.com", "klaviyo.com/onsite"]
+    httparchive: Klaviyo
+
+  # ---------- Chat and support ----------
+  intercom:
+    name: Intercom
+    category: chat
+    patterns:
+      html: ["widget.intercom.io", "js.intercomcdn.com"]
+    httparchive: Intercom
+  drift:
+    name: Drift
+    category: chat
+    patterns:
+      html: ["js.driftt.com"]
+    httparchive: Drift
+  zendesk:
+    name: Zendesk
+    category: chat
+    patterns:
+      html: ["static.zdassets.com"]
+      spf: ["mail.zendesk.com"]
+    httparchive: Zendesk
+  livechat:
+    name: LiveChat
+    category: chat
+    patterns:
+      html: ["cdn.livechatinc.com"]
+    httparchive: LiveChat
+  tawk:
+    name: Tawk.to
+    category: chat
+    patterns:
+      html: ["embed.tawk.to"]
+    httparchive: Tawk.to
+  tidio:
+    name: Tidio
+    category: chat
+    patterns:
+      html: ["code.tidio.co"]
+    httparchive: Tidio
+  qualified:
+    name: Qualified
+    category: chat
+    patterns:
+      html: ["js.qualified.com"]
+
+  # ---------- Scheduling and forms ----------
+  calendly:
+    name: Calendly
+    category: scheduling
+    patterns:
+      html: ["assets.calendly.com", "calendly.com/assets/external/widget"]
+  chili_piper:
+    name: Chili Piper
+    category: scheduling
+    patterns:
+      html: ["js.chilipiper.com"]
+  typeform:
+    name: Typeform
+    category: forms
+    patterns:
+      html: ["embed.typeform.com"]
+
+  # ---------- Video ----------
+  wistia:
+    name: Wistia
+    category: video
+    patterns:
+      html: ["fast.wistia.com", "fast.wistia.net"]
+    httparchive: Wistia
+  vidyard:
+    name: Vidyard
+    category: video
+    patterns:
+      html: ["play.vidyard.com"]
+    httparchive: Vidyard
+  vimeo:
+    name: Vimeo
+    category: video
+    patterns:
+      html: ["player.vimeo.com"]
+    httparchive: Vimeo
+  youtube:
+    name: YouTube embed
+    category: video
+    patterns:
+      html: ["youtube.com/embed", "youtube-nocookie.com/embed"]
+    httparchive: YouTube
+
+  # ---------- ABM, intent and visitor ID ----------
+  sixsense:
+    name: 6sense
+    category: abm_platform
+    patterns:
+      html: ["j.6sc.co"]
+    httparchive: 6sense
+  demandbase:
+    name: Demandbase
+    category: abm_platform
+    patterns:
+      html: ["tag.demandbase.com"]
+    httparchive: Demandbase
+  clearbit_reveal:
+    name: Clearbit / Breeze Intelligence tag
+    category: visitor_id
+    patterns:
+      html: ["tag.clearbitscripts.com"]
+  mutiny:
+    name: Mutiny
+    category: web_personalization
+    patterns:
+      html: ["mutinycdn.com"]
+
+  # ---------- Consent and privacy ----------
+  onetrust:
+    name: OneTrust
+    category: consent
+    patterns:
+      html: ["cdn.cookielaw.org", "optanon"]
+      dns_txt: ["onetrust-domain-verification"]
+    httparchive: OneTrust
+  cookiebot:
+    name: Cookiebot
+    category: consent
+    patterns:
+      html: ["consent.cookiebot.com"]
+    httparchive: Cookiebot
+
+  # ---------- CMS and site platform ----------
+  wordpress:
+    name: WordPress
+    category: cms
+    patterns:
+      html: ["/wp-content/", "/wp-includes/"]
+    httparchive: WordPress
+  webflow:
+    name: Webflow
+    category: cms
+    patterns:
+      html: ["website-files.com", "data-wf-site"]
+    httparchive: Webflow
+  wix:
+    name: Wix
+    category: cms
+    patterns:
+      html: ["static.wixstatic.com"]
+    httparchive: Wix
+  squarespace:
+    name: Squarespace
+    category: cms
+    patterns:
+      html: ["static1.squarespace.com"]
+    httparchive: Squarespace
+  drupal:
+    name: Drupal
+    category: cms
+    patterns:
+      html: ["drupal-settings-json", "/sites/default/files/"]
+    httparchive: Drupal
+
+  # ---------- Ecommerce platforms and payments ----------
+  shopify:
+    name: Shopify
+    category: ecommerce_platform
+    patterns:
+      html: ["cdn.shopify.com", "myshopify.com"]
+    httparchive: Shopify
+  woocommerce:
+    name: WooCommerce
+    category: ecommerce_platform
+    patterns:
+      html: ["woocommerce"]
+    httparchive: WooCommerce
+  magento:
+    name: Magento / Adobe Commerce
+    category: ecommerce_platform
+    patterns:
+      html: ["mage/cookies", "magento_"]
+    httparchive: Magento
+  bigcommerce:
+    name: BigCommerce
+    category: ecommerce_platform
+    patterns:
+      html: ["cdn11.bigcommerce.com"]
+    httparchive: BigCommerce
+  stripe:
+    name: Stripe
+    category: payments
+    patterns:
+      html: ["js.stripe.com"]
+      dns_txt: ["stripe-verification"]
+    httparchive: Stripe
+  paypal:
+    name: PayPal
+    category: payments
+    patterns:
+      html: ["paypal.com/sdk/js", "paypalobjects.com"]
+    httparchive: PayPal
+
+  # ---------- Hosting, CDN and security ----------
+  cloudflare:
+    name: Cloudflare
+    category: cdn_security
+    patterns:
+      headers: {"server": "cloudflare", "cf-ray": ""}
+    httparchive: Cloudflare
+  vercel:
+    name: Vercel
+    category: hosting
+    patterns:
+      headers: {"x-vercel-id": "", "server": "vercel"}
+    httparchive: Vercel
+  netlify:
+    name: Netlify
+    category: hosting
+    patterns:
+      headers: {"server": "netlify"}
+    httparchive: Netlify
+
+  # ---------- Email provider and email security (DNS) ----------
+  google_workspace:
+    name: Google Workspace
+    category: email_provider
+    patterns:
+      mx: ["google.com", "googlemail.com"]
+      spf: ["_spf.google.com"]
+  microsoft_365:
+    name: Microsoft 365
+    category: email_provider
+    patterns:
+      mx: ["mail.protection.outlook.com"]
+      spf: ["spf.protection.outlook.com"]
+      dns_txt: ["re:^ms=ms\\d+"]
+  proofpoint:
+    name: Proofpoint
+    category: email_security
+    patterns:
+      mx: ["pphosted.com"]
+  mimecast:
+    name: Mimecast
+    category: email_security
+    patterns:
+      mx: ["mimecast.com"]
+  sendgrid:
+    name: SendGrid
+    category: email_sending
+    patterns:
+      spf: ["sendgrid.net"]
+  amazon_ses:
+    name: Amazon SES
+    category: email_sending
+    patterns:
+      spf: ["amazonses.com"]
+  mailgun:
+    name: Mailgun
+    category: email_sending
+    patterns:
+      spf: ["mailgun.org"]
+
+  # ---------- SaaS signups visible in DNS verification records ----------
+  atlassian:
+    name: Atlassian (Jira / Confluence)
+    category: saas_signup
+    patterns:
+      dns_txt: ["atlassian-domain-verification"]
+  docusign:
+    name: DocuSign
+    category: saas_signup
+    patterns:
+      dns_txt: ["docusign="]
+  meta_business:
+    name: Meta Business Manager
+    category: saas_signup
+    patterns:
+      dns_txt: ["facebook-domain-verification"]
+  adobe:
+    name: Adobe (enterprise identity)
+    category: saas_signup
+    patterns:
+      dns_txt: ["adobe-idp-site-verification"]
+  apple_business:
+    name: Apple (business services)
+    category: saas_signup
+    patterns:
+      dns_txt: ["apple-domain-verification"]
+  zoom:
+    name: Zoom
+    category: saas_signup
+    patterns:
+      dns_txt: ["zoom_verify_"]
+  slack:
+    name: Slack
+    category: saas_signup
+    patterns:
+      dns_txt: ["slack-domain-verification"]
+
+# Subdomains (from certificate logs) that usually mean something for GTM.
+interesting_subdomains: [app, portal, login, sso, status, docs, help, support, careers, jobs, shop, store, events, investors]
+
+# Default scoring weights. Packs can override any of these.
+weights:
+  competitor_found: 30
+  complement_found: 15
+  gap_found: 20
+  tool_added: 25
+  tool_removed: 20
+  competitor_removed: 35
+  subdomain_new: 10
+  slow_site: 10

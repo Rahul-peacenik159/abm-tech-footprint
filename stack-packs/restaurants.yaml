@@ -1,0 +1,84 @@
+# Restaurants pack: restaurant groups, multi-unit brands, hospitality F&B.
+#
+# Ordering, reservations, gift cards and website builders all show on the site.
+
+pack: restaurants
+description: Restaurants and restaurant groups
+extends: [_core]
+version: 1
+
+# EXAMPLE seller: a commission-free online ordering platform. Edit for your product.
+seller:
+  product: "Example: commission-free online ordering"
+  competitors: [chownow, olo, doordash_storefront, square_online]
+  complements: [toast, opentable, resy, sevenrooms]
+  must_have_categories: [online_ordering, reservations]
+
+plays:
+  competitor_found: displacement_sequence
+  complement_found: integration_pitch
+  gap_found: lost_orders_audit
+  tool_added: timing_trigger
+  competitor_removed: switch_window_outreach
+  subdomain_new: launch_congrats_touch
+  slow_site: mobile_menu_speed_audit
+
+interesting_subdomains: [order, menu, catering, gift, giftcards, reservations, rewards, careers]
+extra_paths: ["/menu"]
+
+tools:
+  toast:
+    name: Toast
+    category: pos_ordering
+    patterns:
+      html: ["toasttab.com"]
+  chownow:
+    name: ChowNow
+    category: online_ordering
+    patterns:
+      html: ["chownow.com"]
+  olo:
+    name: Olo
+    category: online_ordering
+    patterns:
+      html: ["olo.com"]
+  doordash_storefront:
+    name: DoorDash Storefront
+    category: online_ordering
+    patterns:
+      html: ["order.online"]
+  square_online:
+    name: Square Online
+    category: online_ordering
+    patterns:
+      html: ["square.site", "squareup.com"]
+  opentable:
+    name: OpenTable
+    category: reservations
+    patterns:
+      html: ["opentable.com"]
+  resy:
+    name: Resy
+    category: reservations
+    patterns:
+      html: ["resy.com"]
+  sevenrooms:
+    name: SevenRooms
+    category: reservations
+    patterns:
+      html: ["sevenrooms.com"]
+  tock:
+    name: Tock
+    category: reservations
+    patterns:
+      html: ["exploretock.com"]
+  bentobox:
+    name: BentoBox
+    category: restaurant_website
+    patterns:
+      html: ["getbento.com"]
+  popmenu:
+    name: Popmenu
+    category: restaurant_website
+    patterns:
+      html: ["popmenu.com"]

@@ -1,0 +1,145 @@
+# Ecommerce / DTC pack: online stores and the app ecosystem around them.
+#
+# Probably the richest public footprint of any industry. Almost every app
+# (reviews, pay-later, search, loyalty, SMS, subscriptions) loads a script on
+# the storefront.
+
+pack: ecommerce
+description: Online stores, DTC brands and retailers
+extends: [_core]
+version: 1
+
+# EXAMPLE seller: a product reviews and UGC app. Edit for your product.
+seller:
+  product: "Example: product reviews and UGC app for online stores"
+  competitors: [yotpo, okendo, judge_me, stamped, bazaarvoice]
+  complements: [shopify, klaviyo, attentive, recharge]
+  must_have_categories: [reviews, email_marketing]
+
+plays:
+  competitor_found: displacement_sequence
+  complement_found: integration_pitch
+  gap_found: conversion_gap_audit
+  tool_added: timing_trigger
+  competitor_removed: switch_window_outreach
+  subdomain_new: launch_congrats_touch
+  slow_site: page_speed_revenue_audit
+
+interesting_subdomains: [shop, store, checkout, returns, track, wholesale, rewards, b2b, international]
+extra_paths: []
+
+tools:
+  # ---------- Reviews and UGC ----------
+  yotpo:
+    name: Yotpo
+    category: reviews
+    patterns:
+      html: ["staticw2.yotpo.com", "cdn-widgetsrepository.yotpo.com"]
+    httparchive: Yotpo
+  okendo:
+    name: Okendo
+    category: reviews
+    patterns:
+      html: ["okendo.io"]
+  judge_me:
+    name: Judge.me
+    category: reviews
+    patterns:
+      html: ["judge.me"]
+  stamped:
+    name: Stamped
+    category: reviews
+    patterns:
+      html: ["stamped.io"]
+  bazaarvoice:
+    name: Bazaarvoice
+    category: reviews
+    patterns:
+      html: ["bazaarvoice.com"]
+    httparchive: Bazaarvoice
+
+  # ---------- Pay later ----------
+  klarna:
+    name: Klarna
+    category: bnpl
+    patterns:
+      html: ["js.klarna.com", "klarnaservices.com"]
+  afterpay:
+    name: Afterpay / Clearpay
+    category: bnpl
+    patterns:
+      html: ["afterpay.com", "static.afterpay.com"]
+  affirm:
+    name: Affirm
+    category: bnpl
+    patterns:
+      html: ["cdn1.affirm.com", "affirm.com/js"]
+
+  # ---------- Search and merchandising ----------
+  algolia:
+    name: Algolia
+    category: site_search
+    patterns:
+      html: ["algolia.net", "algolianet.com", "algoliasearch"]
+    httparchive: Algolia
+  searchspring:
+    name: Searchspring
+    category: site_search
+    patterns:
+      html: ["searchspring.net"]
+  nosto:
+    name: Nosto
+    category: personalization
+    patterns:
+      html: ["connect.nosto.com"]
+  rebuy:
+    name: Rebuy
+    category: personalization
+    patterns:
+      html: ["rebuyengine.com"]
+
+  # ---------- Subscriptions and loyalty ----------
+  recharge:
+    name: Recharge
+    category: subscriptions
+    patterns:
+      html: ["rechargecdn.com", "rechargepayments.com"]
+  smile_io:
+    name: Smile.io
+    category: loyalty
+    patterns:
+      html: ["smile.io", "sweettooth.io"]
+  loyaltylion:
+    name: LoyaltyLion
+    category: loyalty
+    patterns:
+      html: ["loyaltylion.net"]
+
+  # ---------- SMS and support ----------
+  attentive:
+    name: Attentive
+    category: sms_marketing
+    patterns:
+      html: ["cdn.attn.tv"]
+  postscript:
+    name: Postscript
+    category: sms_marketing
+    patterns:
+      html: ["postscript.io"]
+  gorgias:
+    name: Gorgias
+    category: chat
+    patterns:
+      html: ["gorgias.chat", "gorgias.io"]
+
+  # ---------- Post-purchase ----------
+  narvar:
+    name: Narvar
+    category: post_purchase
+    patterns:
+      html: ["narvar.com"]
+  aftership:
+    name: AfterShip
+    category: post_purchase
+    patterns:
+      html: ["aftership.com"]

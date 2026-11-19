@@ -1,0 +1,134 @@
+"""Offline tests: no network calls. Run with `pytest -q`."""
+import csv
+import json
+from pathlib import Path
+
+import pytest
+
+from footprint import cli, detect, packs, signals
+
+ROOT = Path(__file__).resolve().parent.parent
+PACKS = ROOT / "stack-packs"
+FIXTURE = (ROOT / "tests" / "fixtures" / "hotel_homepage.html").read_text()
+
+
+@pytest.fixture(scope="module")
+def hospitality():
+    return packs.load_pack(PACKS / "hospitality.yaml")
+
+
+@pytest.mark.parametrize("path", packs.list_packs(PACKS), ids=lambda p: p.stem)
+def test_every_pack_loads_and_compiles(path, tmp_path):
+    pack = packs.load_pack(path)
+    assert pack["tools"], "pack has no tools"
+    assert "google_tag_manager" in pack["tools"], "pack should extend _core"
+    out = packs.compile_pack(path, tmp_path)
+    assert json.loads(out.read_text())["pack"] == pack["pack"]
+
+
+def test_normalise_domain():
+    assert detect.normalise_domain("https://www.Example.com/path?q=1") == "example.com"
+    assert detect.normalise_domain("shop.example.co.uk") == "shop.example.co.uk"
+    assert detect.normalise_domain("") == ""
+
+
+def test_detects_tools_in_html_and_headers(hospitality):
+    hits = detect.detect_web(FIXTURE, {"Server": "cloudflare", "CF-RAY": "abc"}, hospitality["tools"], "grandhotel.example")
+    found = {h["tool"] for h in hits}
+    assert {"synxis", "asksuite", "google_tag_manager", "meta_pixel", "wordpress", "cloudflare"} <= found
+    assert "cvent" not in found
+
+
+def test_host_boundary_avoids_false_positives():
+    pack = packs.load_pack(PACKS / "restaurants.yaml")
+    html = '<script src="https://cdn.polo.com/app.js"></script>'
+    assert "olo" not in {h["tool"] for h in detect.detect_web(html, {}, pack["tools"])}
+    html = '<a href="https://order.olo.com/menu">Order</a>'
+    assert "olo" in {h["tool"] for h in detect.detect_web(html, {}, pack["tools"])}
+
+
+def test_own_domain_is_ignored():
+    pack = packs.load_pack(PACKS / "hospitality.yaml")
+    html = '<a href="https://www.cloudbeds.com/pricing">Pricing</a>'
+    assert detect.detect_web(html, {}, pack["tools"], own_domain="cloudbeds.com") == []
+
+
+def test_dns_detection(hospitality):
+    txt = ['"v=spf1 include:_spf.google.com include:sendgrid.net ~all"',
+           "atlassian-domain-verification=abc123", "docusign=1234-5678"]
+    mx = ["aspmx.l.google.com.", "alt1.aspmx.l.google.com."]
+    found = {h["tool"]: h["source"] for h in detect.detect_dns(txt, mx, hospitality["tools"])}
+    assert found["google_workspace"] in ("spf", "dns_mx")
+    assert found["sendgrid"] == "spf"
+    assert found["atlassian"] == "dns_txt"
+    assert found["docusign"] == "dns_txt"
+    assert "microsoft_365" not in found
+
+
+def test_signals_roles_gaps_and_changes(hospitality):
+    hits = detect.detect_web(FIXTURE, {}, hospitality["tools"], "grandhotel.example")
+    rows = signals.build_signals(
+        "grandhotel.example", hospitality, hits, fetched=True, page_url="https://grandhotel.example/",
+        previous_tools={"synxis", "hijiffy"}, new_subdomains={"events.grandhotel.example": "2026-11-01",
+                                                             "random.grandhotel.example": "2026-11-02"},
+        pagespeed_score=31)
+    by_type = {}
+    for r in rows:
+        by_type.setdefault(r["signal_type"], []).append(r)
+
+    asksuite = next(r for r in by_type["tech_detected"] if r["signal_value"] == "asksuite")
+    assert asksuite["role"] == "competitor" and asksuite["weight"] == 30
+    synxis = next(r for r in by_type["tech_detected"] if r["signal_value"] == "synxis")
+    assert synxis["role"] == "complement"
+    assert "gap" not in by_type  # chat and booking engine both present
+    assert any(r["signal_value"] == "asksuite" for r in by_type["tech_added"])
+    removed = by_type["tech_removed"][0]
+    assert removed["signal_value"] == "hijiffy" and removed["play"] == "switch_window_outreach"
+    assert [r["signal_value"] for r in by_type["subdomain_new"]] == ["events.grandhotel.example"]
+    assert by_type["pagespeed_mobile"][0]["weight"] == hospitality["weights"]["slow_site"]
+
+    summary = signals.summarise("grandhotel.example", rows, True, [])
+    assert summary["score"] <= 100
+    assert summary["top_play"] == "switch_window_outreach"
+    assert "Asksuite" in summary["competitors"]
+
+
+def test_gap_when_category_missing(hospitality):
+    rows = signals.build_signals("plain.example", hospitality, [], fetched=True, page_url=None)
+    assert {r["signal_value"] for r in rows if r["signal_type"] == "gap"} == {"chat", "booking_engine"}
+    assert signals.build_signals("down.example", hospitality, [], fetched=False, page_url=None) == []
+
+
+def test_external_hosts():
+    hosts = detect.external_hosts(FIXTURE, "grandhotel.example")
+    assert "be.synxis.com" in hosts
+    assert "www.googletagmanager.com" in hosts
+    assert not any(h.endswith("grandhotel.example") for h in hosts)
+
+
+def test_scan_end_to_end_without_network(monkeypatch, tmp_path):
+    monkeypatch.setattr(cli.fetch, "fetch_site", lambda d, p=None: {
+        "ok": True, "url": f"https://{d}/", "html": FIXTURE if d == "grandhotel.example" else "<html></html>",
+        "headers": {}, "error": None})
+    monkeypatch.setattr(cli.fetch, "get_dns", lambda d: {"txt": ["v=spf1 include:spf.protection.outlook.com -all"],
+                                                         "mx": ["x.mail.protection.outlook.com"], "error": None})
+    args = ["scan", "--pack", "hospitality", "--domains", "grandhotel.example", "plainhotel.example",
+            "--out", str(tmp_path), "--delay", "0"]
+    cli.main(args)
+    with open(tmp_path / "accounts_summary.csv") as fh:
+        summary = {r["account_domain"]: r for r in csv.DictReader(fh)}
+    assert "Asksuite" in summary["grandhotel.example"]["competitors"]
+    assert summary["plainhotel.example"]["gaps"] == "booking_engine; chat"
+    assert "Microsoft 365" in summary["plainhotel.example"]["all_tools"]
+    snaps = list((tmp_path / "snapshots" / "hospitality").glob("*.jsonl"))
+    assert len(snaps) == 1
+
+
+def test_httparchive_sql_generation(capsys):
+    cli.main(["httparchive-sql", "--pack", "ecommerce", "--accounts-table", "p.abm.accounts",
+              "--signals-table", "p.abm.signals"])
+    sql = capsys.readouterr().out
+    assert "{{" not in sql
+    assert "'Yotpo' AS technology, 'yotpo' AS tool_id" in sql
+    assert "'competitor' AS role" in sql
+    assert "`httparchive.crawl.pages`" in sql and "is_root_page" in sql

@@ -8,8 +8,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - run: pip install -r requirements-dev.txt
@@ -20,4 +20,4 @@ jobs:
           python -m footprint compile-packs
           git diff --exit-code stack-packs/compiled || (echo "Run: python -m footprint compile-packs" && exit 1)
       - name: Tests
-        run: pytest -q
+        run: python -m pytest -q

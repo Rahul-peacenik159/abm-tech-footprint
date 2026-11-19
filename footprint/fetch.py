@@ -9,7 +9,7 @@ import requests
 
 USER_AGENT = os.getenv(
     "FOOTPRINT_USER_AGENT",
-    "abm-tech-footprint/0.1 (+https://github.com/rahul-tulsiani159/abm-tech-footprint)",
+    "abm-tech-footprint/0.1 (+https://github.com/Rahul-peacenik159/abm-tech-footprint)",
 )
 TIMEOUT = float(os.getenv("FOOTPRINT_TIMEOUT", "20"))
 

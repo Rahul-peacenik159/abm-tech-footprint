@@ -26,7 +26,7 @@ your account list ──► scan (website, DNS, cert logs, speed) ──► sign
 ## Quickstart (10 minutes, no keys needed)
 
 ```bash
-git clone https://github.com/rahul-tulsiani159/abm-tech-footprint.git
+git clone https://github.com/Rahul-peacenik159/abm-tech-footprint.git
 cd abm-tech-footprint
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt

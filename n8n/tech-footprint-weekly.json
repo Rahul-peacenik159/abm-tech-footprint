@@ -37,7 +37,7 @@
     },
     {
       "parameters": {
-        "url": "https://raw.githubusercontent.com/rahul-tulsiani159/abm-tech-footprint/main/stack-packs/compiled/hospitality.json",
+        "url": "https://raw.githubusercontent.com/Rahul-peacenik159/abm-tech-footprint/main/stack-packs/compiled/hospitality.json",
         "options": {}
       },
       "id": "b6ddde59-e584-4d65-86c2-f9c162a63dfa",
@@ -71,7 +71,7 @@
           "parameters": [
             {
               "name": "User-Agent",
-              "value": "abm-tech-footprint/0.1 (+https://github.com/rahul-tulsiani159/abm-tech-footprint)"
+              "value": "abm-tech-footprint/0.1 (+https://github.com/Rahul-peacenik159/abm-tech-footprint)"
             }
           ]
         },

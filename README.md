@@ -9,7 +9,7 @@ your account list ──► scan (website, DNS, cert logs, speed) ──► sign
                          + HTTP Archive in BigQuery (monthly)               (CSV, BigQuery, CRM)
 ```
 
-> Part of an open set of ABM bundles. Every bundle writes to the same `accounts` and `signals` tables, so they stack. See [Roadmap](#roadmap).
+> Part of an open set of ABM bundles. Every bundle writes to the same `accounts` and `signals` tables, so they stack. See [Part of the open ABM bundles](#part-of-the-open-abm-bundles).
 
 ---
 
@@ -185,15 +185,21 @@ tests/                offline tests (pytest -q)
 - **BigQuery costs real money if you skip the filters.** Dry run, cap bytes, keep the date filter.
 - **Fingerprints are a starter set.** A match is evidence, not proof. Check the `evidence` column before you put a claim in outreach.
 
-## Roadmap
+## Part of the open ABM bundles
 
-Sibling bundles writing to the same tables:
+Every repo writes the same `signals` format, so you can load them into one BigQuery table or combine them with abm-activation-kit.
 
-- `abm-signal-warehouse`: shared schema, fit + intent + engagement scoring, CRM write-back
-- `abm-hiring-signals`: Greenhouse, Lever and Ashby public job boards
-- `abm-public-company-triggers`: SEC EDGAR 8-K events, filings full-text search
-- `abm-news-pulse`: GDELT news and themes per account
-- `abm-activation-kit`: LinkedIn matched audiences, HubSpot, 1:1 pages
+| Repo | What it adds |
+|---|---|
+| **abm-tech-footprint** (this repo) | what accounts run on their website, DNS and email; security and email posture |
+| [abm-hiring-signals](https://github.com/Rahul-peacenik159/abm-hiring-signals) | who is hiring for what (Greenhouse, Lever, Ashby public job boards) |
+| [abm-public-company-triggers](https://github.com/Rahul-peacenik159/abm-public-company-triggers) | SEC filings: exec changes, M&A, restructuring, keyword mentions, revenue trend |
+| [abm-news-pulse](https://github.com/Rahul-peacenik159/abm-news-pulse) | news events per account from GDELT (funding, M&A, launches, leadership, layoffs) |
+| [abm-tam-builder](https://github.com/Rahul-peacenik159/abm-tam-builder) | build the account universe from Wikidata, OpenStreetMap and US Census data |
+| [abm-dev-community-signals](https://github.com/Rahul-peacenik159/abm-dev-community-signals) | which companies' engineers engage with your or competitors' GitHub repos; HN mentions |
+| [abm-market-timing](https://github.com/Rahul-peacenik159/abm-market-timing) | topic and region demand: Wikipedia attention, news volume, Google Trends in BigQuery |
+| [abm-public-sector-buyers](https://github.com/Rahul-peacenik159/abm-public-sector-buyers) | government buyers: USAspending awards, incumbents, SAM.gov open opportunities |
+| [abm-activation-kit](https://github.com/Rahul-peacenik159/abm-activation-kit) | combine all signals, score, and push to HubSpot, LinkedIn audiences and 1:1 pages |
 
 ## Contributing
 

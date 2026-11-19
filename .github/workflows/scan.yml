@@ -81,7 +81,7 @@ jobs:
 
       # Keep previous snapshots so this run can report tools added / removed.
       - name: Restore previous snapshots
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: out/snapshots
           key: snapshots-${{ env.PACK }}-${{ github.run_id }}
@@ -105,14 +105,14 @@ jobs:
 
       - name: Save snapshots for next run
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: out/snapshots
           key: snapshots-${{ env.PACK }}-${{ github.run_id }}
 
       - name: Upload results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: scan-results-${{ env.PACK }}
           path: |

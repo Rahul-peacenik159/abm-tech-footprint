@@ -17,7 +17,7 @@ import time
 from datetime import date
 from pathlib import Path
 
-from . import detect, fetch, packs, signals
+from . import detect, fetch, packs, posture, signals
 
 ROOT = Path(__file__).resolve().parent.parent
 PACK_DIR = ROOT / "stack-packs"
@@ -77,11 +77,64 @@ def _write_csv(path: Path, rows: list[dict], fields: list[str]) -> None:
 
 
 # ---------------------------------------------------------------- commands
+def _observe_live(domain: str, pack: dict, args) -> dict:
+    """Collect everything for one account from the network."""
+    obs = {"fetched": False, "url": None, "html": "", "headers": {}, "txt": [], "mx": [],
+           "dmarc": [], "mta_sts": None, "bimi": None, "security_txt": None, "subs": {},
+           "pagespeed": None, "errors": []}
+    site = fetch.fetch_site(domain, pack["extra_paths"])
+    obs.update(fetched=site["ok"], url=site["url"], html=site["html"], headers=site["headers"])
+    obs["errors"].append(site["error"])
+    if not args.no_dns:
+        dns = fetch.get_dns(domain)
+        obs["errors"].append(dns["error"])
+        obs.update(txt=dns["txt"], mx=dns["mx"])
+        if "email" in pack["posture"]:
+            obs.update(fetch.get_email_dns(domain))
+    if "web" in pack["posture"] and site["ok"]:
+        obs["security_txt"] = fetch.fetch_security_txt(site["url"])
+    if args.crtsh:
+        crt = fetch.crtsh_subdomains(domain, args.new_days)
+        obs["errors"].append(crt["error"])
+        obs["subs"] = crt["new"]
+    if args.pagespeed and site["ok"]:
+        psi = fetch.pagespeed(site["url"], os.getenv("PAGESPEED_API_KEY"))
+        obs["errors"].append(psi["error"])
+        obs["pagespeed"] = psi["score"]
+    return obs
+
+
+def _load_raw(path: str, dns_path: str | None) -> dict[str, dict]:
+    """Observations collected elsewhere (e.g. collectors/browser-collect.js).
+    `path`: JSON array (or JSON lines) of {domain, url, html, headers, security_txt,
+    txt, mx, dmarc, mta_sts, bimi}. `dns_path`: optional {domain: {txt, mx, dmarc, mta_sts, bimi}}."""
+    text = Path(path).read_text(encoding="utf-8").strip()
+    items = json.loads(text) if text.startswith("[") else [json.loads(l) for l in text.splitlines() if l.strip()]
+    dns = json.loads(Path(dns_path).read_text(encoding="utf-8")) if dns_path else {}
+    out = {}
+    for it in items:
+        d = detect.normalise_domain(it.get("domain") or it.get("url", ""))
+        merged = {**dns.get(d, {}), **{k: v for k, v in it.items() if v is not None}}
+        out[d] = {"fetched": bool(merged.get("html")) and int(merged.get("status", 200) or 200) < 400,
+                  "url": merged.get("url") or f"https://{d}/", "html": merged.get("html", ""),
+                  "headers": merged.get("headers", {}), "txt": merged.get("txt", []), "mx": merged.get("mx", []),
+                  "dmarc": merged.get("dmarc", []), "mta_sts": merged.get("mta_sts"), "bimi": merged.get("bimi"),
+                  "security_txt": merged.get("security_txt"), "subs": merged.get("new_subdomains", {}),
+                  "pagespeed": merged.get("pagespeed"), "errors": []}
+    for d, rec in dns.items():
+        out.setdefault(d, {"fetched": False, "url": None, "html": "", "headers": {}, "txt": rec.get("txt", []),
+                           "mx": rec.get("mx", []), "dmarc": rec.get("dmarc", []), "mta_sts": rec.get("mta_sts"),
+                           "bimi": rec.get("bimi"), "security_txt": None, "subs": {}, "pagespeed": None,
+                           "errors": ["no website data in raw file"]})
+    return out
+
+
 def cmd_scan(args) -> None:
     pack = packs.load_pack(_resolve_pack(args.pack))
-    accounts = _read_accounts(args.accounts, args.domains)
+    raw = _load_raw(args.from_raw, args.dns_raw) if args.from_raw else None
+    accounts = _read_accounts(args.accounts, args.domains) or (list(raw) if raw else [])
     if not accounts:
-        sys.exit("No accounts. Pass --accounts file.csv or --domains a.com b.com")
+        sys.exit("No accounts. Pass --accounts file.csv, --domains a.com b.com, or --from-raw raw.json")
     if args.limit:
         accounts = accounts[: args.limit]
 
@@ -90,41 +143,40 @@ def cmd_scan(args) -> None:
     snap_dir.mkdir(parents=True, exist_ok=True)
     today = date.today().isoformat()
     previous = _latest_snapshot(snap_dir, today)
-    psi_key = os.getenv("PAGESPEED_API_KEY")
 
     all_rows, summaries, snapshot = [], [], []
-    print(f"Scanning {len(accounts)} accounts with pack '{pack['pack']}' ({len(pack['tools'])} tools)")
+    mode = "from raw file" if raw else "live"
+    print(f"Scanning {len(accounts)} accounts with pack '{pack['pack']}' ({len(pack['tools'])} tools, {mode})")
     for i, domain in enumerate(accounts, 1):
-        errors, hits = [], []
-        site = fetch.fetch_site(domain, pack["extra_paths"])
-        errors.append(site["error"])
-        if site["ok"]:
-            hits += detect.detect_web(site["html"], site["headers"], pack["tools"], own_domain=domain)
-        if not args.no_dns:
-            dns = fetch.get_dns(domain)
-            errors.append(dns["error"])
-            hits += detect.detect_dns(dns["txt"], dns["mx"], pack["tools"])
-        subs = {}
-        if args.crtsh:
-            crt = fetch.crtsh_subdomains(domain, args.new_days)
-            errors.append(crt["error"])
-            subs = crt["new"]
-        score = None
-        if args.pagespeed and site["ok"]:
-            psi = fetch.pagespeed(site["url"], psi_key)
-            errors.append(psi["error"])
-            score = psi["score"]
+        if raw is not None:
+            obs = raw.get(domain) or {"fetched": False, "url": None, "html": "", "headers": {}, "txt": [], "mx": [],
+                                      "dmarc": [], "mta_sts": None, "bimi": None, "security_txt": None,
+                                      "subs": {}, "pagespeed": None, "errors": ["not in raw file"]}
+        else:
+            obs = _observe_live(domain, pack, args)
+
+        hits = []
+        if obs["fetched"]:
+            hits += detect.detect_web(obs["html"], obs["headers"], pack["tools"], own_domain=domain)
+        hits += detect.detect_dns(obs["txt"], obs["mx"], pack["tools"], obs["dmarc"])
+
+        findings = []
+        if "email" in pack["posture"] and (obs["txt"] or obs["mx"] or obs["dmarc"]):
+            findings += posture.email_posture(obs["txt"], obs["mx"], obs["dmarc"], obs["mta_sts"], obs["bimi"])
+        if "web" in pack["posture"] and obs["fetched"]:
+            findings += posture.web_posture(obs["headers"], obs["security_txt"], obs["url"])
 
         prev_tools = previous.get(domain) if previous is not None else None
-        rows = signals.build_signals(domain, pack, hits, site["ok"], site["url"], prev_tools, subs, score)
-        summary = signals.summarise(domain, rows, site["ok"], errors)
+        rows = signals.build_signals(domain, pack, hits, obs["fetched"], obs["url"], prev_tools, obs["subs"],
+                                     obs["pagespeed"], posture_findings=findings)
+        summary = signals.summarise(domain, rows, obs["fetched"], obs["errors"])
         all_rows += rows
         summaries.append(summary)
-        if site["ok"]:
+        if obs["fetched"]:
             snapshot.append({"account_domain": domain, "tools": sorted({h["tool"] for h in hits})})
-        flag = "ok " if site["ok"] else "ERR"
+        flag = "ok " if obs["fetched"] else "ERR"
         print(f"  [{i}/{len(accounts)}] {flag} {domain:<35} score={summary['score']:<3} {summary['top_play']}")
-        if args.delay and i < len(accounts):
+        if raw is None and args.delay and i < len(accounts):
             time.sleep(args.delay)
 
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -212,6 +264,8 @@ def main(argv=None) -> None:
     s.add_argument("--no-dns", action="store_true", help="skip DNS lookups")
     s.add_argument("--delay", type=float, default=1.0, help="seconds between accounts (be polite)")
     s.add_argument("--limit", type=int, help="only scan the first N accounts")
+    s.add_argument("--from-raw", help="use data collected elsewhere (collectors/browser-collect.js) instead of fetching")
+    s.add_argument("--dns-raw", help="DNS records collected elsewhere (collectors/dns-collect.js), JSON keyed by domain")
     s.set_defaults(func=cmd_scan)
 
     d = sub.add_parser("discover", help="list third-party hosts on a site, to build new fingerprints")

@@ -64,6 +64,38 @@ def _doh(name: str, rtype: str) -> list[str]:
     return out
 
 
+def _txt(name: str) -> list[str]:
+    try:
+        import dns.resolver  # type: ignore
+
+        try:
+            return [b"".join(r.strings).decode("utf-8", "ignore") for r in dns.resolver.resolve(name, "TXT")]
+        except Exception:
+            return []
+    except ImportError:
+        try:
+            return _doh(name, "TXT")
+        except Exception:
+            return []
+
+
+def get_email_dns(domain: str) -> dict:
+    """DMARC, MTA-STS and BIMI TXT records (for email posture checks)."""
+    return {"dmarc": _txt(f"_dmarc.{domain}"), "mta_sts": _txt(f"_mta-sts.{domain}"),
+            "bimi": _txt(f"default._bimi.{domain}")}
+
+
+def fetch_security_txt(base_url: str) -> bool:
+    """True when /.well-known/security.txt exists and looks like RFC 9116 text."""
+    root = "/".join(base_url.split("/", 3)[:3])
+    try:
+        r = _session.get(root + "/.well-known/security.txt", timeout=TIMEOUT)
+        body = r.text[:600].lower() if r.status_code < 400 else ""
+        return "contact:" in body and "<html" not in body
+    except requests.RequestException:
+        return False
+
+
 def get_dns(domain: str) -> dict:
     """TXT and MX records. Uses dnspython if installed, else DNS-over-HTTPS."""
     result = {"txt": [], "mx": [], "error": None}

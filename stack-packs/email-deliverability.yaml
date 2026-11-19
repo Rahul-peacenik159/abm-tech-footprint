@@ -1,0 +1,157 @@
+# Email and deliverability pack.
+#
+# For sellers of email security, DMARC/authentication, deliverability, sending
+# infrastructure and email marketing. Everything here comes from public DNS:
+# MX (provider and gateway), SPF (who sends as the domain), DMARC (policy and
+# which vendor receives the reports), MTA-STS and BIMI.
+#
+# Turns on `email` posture checks. Since early 2024 Google and Yahoo require
+# SPF, DKIM and a DMARC record from bulk senders, so missing or p=none DMARC
+# is a concrete, checkable gap.
+
+pack: email-deliverability
+description: Email provider, gateways, senders and DMARC/SPF/MTA-STS/BIMI posture
+extends: [_core]
+version: 1
+
+posture: [email]
+
+# EXAMPLE seller: a DMARC / email authentication platform. Edit for your product.
+seller:
+  product: "Example: DMARC enforcement and email authentication platform"
+  competitors: [valimail, dmarcian, easydmarc, red_sift, powerdmarc, proofpoint_efd]
+  complements: [google_workspace, microsoft_365]
+  must_have_categories: [dmarc_reporting]
+
+weights:
+  complement_found: 5
+
+plays:
+  competitor_found: displacement_sequence
+  complement_found: integration_pitch
+  gap_found: email_auth_rollout
+  tool_added: timing_trigger
+  competitor_removed: switch_window_outreach
+  subdomain_new: launch_congrats_touch
+  slow_site: speed_audit
+
+interesting_subdomains: [mail, email, smtp, mta-sts, links, click, go, news, newsletter]
+extra_paths: []
+
+tools:
+  # ---------- Mailbox providers and secure email gateways (MX) ----------
+  zoho_mail:
+    name: Zoho Mail
+    category: email_provider
+    patterns:
+      mx: ["zoho.com", "zoho.eu", "zoho.in"]
+  fastmail:
+    name: Fastmail
+    category: email_provider
+    patterns:
+      mx: ["messagingengine.com"]
+  barracuda:
+    name: Barracuda Email Security
+    category: email_security
+    patterns:
+      mx: ["barracudanetworks.com"]
+  cisco_secure_email:
+    name: Cisco Secure Email
+    category: email_security
+    patterns:
+      mx: ["iphmx.com"]
+  trend_micro_email:
+    name: Trend Micro Email Security
+    category: email_security
+    patterns:
+      mx: ["tmes.trendmicro.com", "tmes.trendmicro.eu"]
+  sophos_email:
+    name: Sophos Email
+    category: email_security
+    patterns:
+      mx: ["hydra.sophos.com"]
+
+  # ---------- Sending services (SPF) ----------
+  postmark:
+    name: Postmark
+    category: email_sending
+    patterns:
+      spf: ["spf.mtasv.net"]
+  sparkpost:
+    name: SparkPost
+    category: email_sending
+    patterns:
+      spf: ["sparkpostmail.com"]
+  mandrill:
+    name: Mailchimp Transactional (Mandrill)
+    category: email_sending
+    patterns:
+      spf: ["spf.mandrillapp.com"]
+  brevo:
+    name: Brevo (Sendinblue)
+    category: email_marketing
+    patterns:
+      spf: ["spf.sendinblue.com", "spf.brevo.com"]
+      dmarc: ["dmarc.brevo.com"]
+  freshdesk:
+    name: Freshdesk
+    category: support_email
+    patterns:
+      spf: ["email.freshdesk.com"]
+
+  # ---------- DMARC reporting vendors (DMARC rua=) ----------
+  valimail:
+    name: Valimail
+    category: dmarc_reporting
+    patterns:
+      dmarc: ["vali.email"]
+  dmarcian:
+    name: dmarcian
+    category: dmarc_reporting
+    patterns:
+      dmarc: ["dmarcian.com", "dmarcian.eu"]
+  easydmarc:
+    name: EasyDMARC
+    category: dmarc_reporting
+    patterns:
+      dmarc: ["easydmarc"]
+  red_sift:
+    name: Red Sift OnDMARC
+    category: dmarc_reporting
+    patterns:
+      dmarc: ["ondmarc.com"]
+  powerdmarc:
+    name: PowerDMARC
+    category: dmarc_reporting
+    patterns:
+      dmarc: ["powerdmarc.com"]
+  proofpoint_efd:
+    name: Proofpoint Email Fraud Defense
+    category: dmarc_reporting
+    patterns:
+      dmarc: ["emaildefense.proofpoint.com"]
+  agari:
+    name: Agari (Fortra)
+    category: dmarc_reporting
+    patterns:
+      dmarc: ["agari.com"]
+  uriports:
+    name: URIports
+    category: dmarc_reporting
+    patterns:
+      dmarc: ["uriports.com"]
+  cloudflare_dmarc:
+    name: Cloudflare DMARC Management
+    category: dmarc_reporting
+    patterns:
+      dmarc: ["dmarc-reports.cloudflare.net"]
+  postmark_dmarc:
+    name: Postmark DMARC digests
+    category: dmarc_reporting
+    patterns:
+      dmarc: ["dmarc.postmarkapp.com"]
+  godaddy_dmarc:
+    name: GoDaddy DMARC reporting
+    category: dmarc_reporting
+    patterns:
+      dmarc: ["onsecureserver.net"]

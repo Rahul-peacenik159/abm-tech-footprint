@@ -1,0 +1,221 @@
+# Security, CDN and compliance pack.
+#
+# For anyone selling security, compliance or infrastructure to companies that
+# sell to enterprises. Startups selling upmarket get asked for SOC 2, a trust
+# center, a security contact and sane web security long before they can afford
+# a security team, so gaps here are strong, verifiable openers.
+#
+# Turns on `web` posture checks: HSTS, CSP, clickjacking, nosniff, referrer
+# policy, server version leaks and /.well-known/security.txt.
+
+pack: security-compliance
+description: Security posture, CDN/WAF, consent and trust-center signals
+extends: [_core]
+version: 1
+
+posture: [web]
+
+# EXAMPLE seller: a compliance automation / trust center platform. Edit for your product.
+seller:
+  product: "Example: compliance automation and trust center for startups selling to enterprise"
+  competitors: [vanta, drata, secureframe, safebase, sprinto, conveyor, whistic]
+  complements: [cloudflare, vercel, google_workspace, microsoft_365]
+  must_have_categories: [trust_center, consent]
+
+weights:
+  complement_found: 5
+
+plays:
+  competitor_found: displacement_sequence
+  complement_found: integration_pitch
+  gap_found: enterprise_readiness_audit
+  tool_added: timing_trigger
+  competitor_removed: switch_window_outreach
+  subdomain_new: launch_congrats_touch
+  slow_site: speed_audit
+
+interesting_subdomains: [trust, security, status, compliance, privacy, sso, auth, login, app, api, docs]
+extra_paths: ["/security", "/trust"]
+
+tools:
+  # ---------- Trust centers and compliance automation ----------
+  trust_center_page:
+    name: Trust center (own subdomain or page)
+    category: trust_center
+    patterns:
+      html: ["re:(^|[^a-z0-9-])trust\\.[a-z0-9-]+\\.[a-z]{2,}", "re:/trust-center/?($|[\\s\"'#?])", "re:own/trust/?($|\\s)", "re:href=[\"']/trust/?[\"']"]
+  vanta:
+    name: Vanta (trust center)
+    category: trust_center
+    patterns:
+      html: ["app.vanta.com", "trust.vanta.com", "vanta.com/trust"]
+  drata:
+    name: Drata (trust center)
+    category: trust_center
+    patterns:
+      html: ["app.drata.com/trust", "trust.drata.com", "drata.com/trust"]
+  secureframe:
+    name: Secureframe (trust center)
+    category: trust_center
+    patterns:
+      html: ["secureframe.com/trust", "trust.secureframe.com"]
+  safebase:
+    name: SafeBase (trust center)
+    category: trust_center
+    patterns:
+      html: ["safebase.io"]
+  sprinto:
+    name: Sprinto (trust center)
+    category: trust_center
+    patterns:
+      html: ["sprinto.com/trust", "trust.sprinto.com"]
+  conveyor:
+    name: Conveyor (trust center)
+    category: trust_center
+    patterns:
+      html: ["conveyor.com/trust", "app.conveyor.com"]   # verify
+  whistic:
+    name: Whistic (trust profile)
+    category: trust_center
+    patterns:
+      html: ["whistic.com/profile", "profile.whistic.com"]   # verify
+
+  # ---------- Compliance claims on the website (text) ----------
+  soc2_claim:
+    name: Mentions SOC 2
+    category: compliance_claim
+    patterns:
+      html: ["soc 2", "soc2", "soc-2"]
+  iso27001_claim:
+    name: Mentions ISO 27001
+    category: compliance_claim
+    patterns:
+      html: ["iso 27001", "iso/iec 27001", "iso27001"]
+  iso42001_claim:
+    name: Mentions ISO 42001 (AI management)
+    category: compliance_claim
+    patterns:
+      html: ["iso 42001", "iso/iec 42001"]
+  hipaa_claim:
+    name: Mentions HIPAA
+    category: compliance_claim
+    patterns:
+      html: ["hipaa"]
+  fedramp_claim:
+    name: Mentions FedRAMP
+    category: compliance_claim
+    patterns:
+      html: ["fedramp"]
+  status_page:
+    name: Public status page
+    category: status_page
+    patterns:
+      html: ["re:(^|[^a-z0-9-])status\\.[a-z0-9-]+\\.[a-z]{2,}", "statuspage.io", "instatus.com", "betteruptime.com"]
+
+  # ---------- CDN, WAF and hosting (response headers) ----------
+  fastly:
+    name: Fastly
+    category: cdn_security
+    patterns:
+      headers: {"x-fastly-request-id": "", "fastly-debug-digest": "", "x-served-by": "cache-", "x-timer": ""}
+  akamai:
+    name: Akamai
+    category: cdn_security
+    patterns:
+      headers: {"server": "akamaighost", "x-akamai-transformed": ""}
+  cloudfront:
+    name: Amazon CloudFront
+    category: cdn_security
+    patterns:
+      headers: {"x-amz-cf-id": "", "via": "cloudfront"}
+  azure_front_door:
+    name: Azure Front Door
+    category: cdn_security
+    patterns:
+      headers: {"x-azure-ref": ""}
+  google_cloud_lb:
+    name: Google Cloud load balancer / CDN
+    category: cdn_security
+    patterns:
+      headers: {"via": "1.1 google"}
+  fly_io:
+    name: Fly.io
+    category: hosting
+    patterns:
+      headers: {"server": "fly/", "fly-request-id": ""}
+  render:
+    name: Render
+    category: hosting
+    patterns:
+      headers: {"x-render-origin-server": ""}
+  aws_s3:
+    name: Amazon S3 website
+    category: hosting
+    patterns:
+      headers: {"server": "amazons3"}
+  webflow_hosting:
+    name: Webflow hosting
+    category: hosting
+    patterns:
+      headers: {"x-wf-region": ""}
+
+  # ---------- Bot protection ----------
+  cloudflare_turnstile:
+    name: Cloudflare Turnstile
+    category: bot_protection
+    patterns:
+      html: ["challenges.cloudflare.com/turnstile"]
+  recaptcha:
+    name: Google reCAPTCHA
+    category: bot_protection
+    patterns:
+      html: ["google.com/recaptcha", "recaptcha.net", "gstatic.com/recaptcha"]
+  hcaptcha:
+    name: hCaptcha
+    category: bot_protection
+    patterns:
+      html: ["hcaptcha.com"]
+
+  # ---------- Consent management ----------
+  osano:
+    name: Osano
+    category: consent
+    patterns:
+      html: ["cmp.osano.com"]
+  termly:
+    name: Termly
+    category: consent
+    patterns:
+      html: ["app.termly.io"]
+  iubenda:
+    name: iubenda
+    category: consent
+    patterns:
+      html: ["cdn.iubenda.com"]
+  usercentrics:
+    name: Usercentrics
+    category: consent
+    patterns:
+      html: ["usercentrics.eu"]
+  cookieyes:
+    name: CookieYes
+    category: consent
+    patterns:
+      html: ["cdn-cookieyes.com"]
+  hubspot_cookie_banner:
+    name: HubSpot cookie banner
+    category: consent
+    patterns:
+      html: ["js.hs-banner.com"]
+
+  # ---------- Security tools visible in DNS ----------
+  knowbe4:
+    name: KnowBe4 (security awareness)
+    category: security_tool
+    patterns:
+      dns_txt: ["knowbe4-site-verification"]   # verify
+  cisco_identity:
+    name: Cisco (domain claim, e.g. Duo / Webex)
+    category: security_tool
+    patterns:
+      dns_txt: ["cisco-ci-domain-verification"]

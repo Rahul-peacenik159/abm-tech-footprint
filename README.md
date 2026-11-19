@@ -18,10 +18,11 @@ your account list ──► scan (website, DNS, cert logs, speed) ──► sign
 | Piece | What it does |
 |---|---|
 | `footprint/` | Python CLI: scans accounts, detects tools, scores, writes CSV + JSONL |
-| `stack-packs/` | YAML "industry packs": fingerprints, your competitors/complements, gap rules, plays. 7 industries included, plus a template for any other |
+| `stack-packs/` | YAML "industry packs": fingerprints, your competitors/complements, gap rules, plays. 7 industries plus security-compliance and email-deliverability, and a template for any other |
 | `bigquery/` | Shared schema, HTTP Archive match (generated per pack), tool-change diff, account scores view |
 | `n8n/` | Importable weekly workflow (website + DNS checks, writes to BigQuery) |
-| `docs/` | How it works, who it helps, how to build a pack for any industry, BigQuery cost guardrails |
+| `collectors/` | Browser and DNS collectors for sites or networks that block the scanner |
+| `docs/` | How it works, who it helps, how to build a pack for any industry, security and email checks, BigQuery cost guardrails |
 
 ## Quickstart (10 minutes, no keys needed)
 
@@ -56,6 +57,7 @@ Useful flags:
 --pagespeed      # also get mobile speed score (set PAGESPEED_API_KEY in .env for higher quota)
 --domains a.com b.com   # scan domains without a CSV
 --limit 20       # try a few first
+--from-raw raw.json --dns-raw dns.json   # use data collected in your browser (collectors/), no network needed
 ```
 
 ## How it works
@@ -115,6 +117,10 @@ Plays are just labels you choose in the pack. Map them to your sequences, ad aud
 | `auto-dealers` | Dealerships, dealer groups | Dealer chat / lead response |
 | `healthcare-practices` | Dental, clinics, PT groups | Online patient scheduling |
 | `higher-ed` | Universities, online programs | Admissions chatbot |
+| `security-compliance` | Companies selling to enterprises (security posture, CDN/WAF, trust center, consent) | Compliance automation / trust center |
+| `email-deliverability` | Any company that sends email (provider, gateways, senders, DMARC/SPF/MTA-STS/BIMI) | DMARC / email authentication platform |
+
+The last two also run **posture checks**: website security headers and `security.txt`, and SPF/DMARC/MTA-STS/BIMI policy. See [docs/security-and-email-checks.md](docs/security-and-email-checks.md).
 
 **Any other industry:** copy `stack-packs/_template.yaml`, then use `discover` to learn fingerprints from companies you know:
 
@@ -153,13 +159,14 @@ Import [`n8n/tech-footprint-weekly.json`](n8n/tech-footprint-weekly.json). It lo
 ## Repo layout
 
 ```
-footprint/            Python CLI (scan, discover, packs, compile-packs, httparchive-sql)
+footprint/            Python CLI (scan, discover, packs, compile-packs, httparchive-sql) + posture checks
+collectors/           browser-collect.js and dns-collect.js, for sites or networks that block the scanner
 stack-packs/          _core.yaml + industry packs + _template.yaml
 stack-packs/compiled/ JSON versions of each pack (used by n8n)
 bigquery/             00_schema, 10_httparchive_match (template), 20_tech_changes, 30_account_scores
 n8n/                  weekly workflow JSON + readable copy of its detection code
 sample-data/          sample account lists per industry (company domains only)
-docs/                 how-it-works, who-benefits, stack-packs, build-a-pack-with-ai, bigquery-setup
+docs/                 how-it-works, who-benefits, stack-packs, build-a-pack-with-ai, bigquery-setup, security-and-email-checks
 tests/                offline tests (pytest -q)
 ```
 

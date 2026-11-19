@@ -71,17 +71,19 @@ def detect_web(html: str, headers: dict, tools: dict, own_domain: str = "") -> l
     return hits
 
 
-def detect_dns(txt_records: list[str], mx_records: list[str], tools: dict) -> list[dict]:
-    """Return one hit per tool found in TXT, SPF or MX records."""
+def detect_dns(txt_records: list[str], mx_records: list[str], tools: dict,
+               dmarc_records: list[str] | None = None) -> list[dict]:
+    """Return one hit per tool found in TXT, SPF, MX or DMARC records."""
     txt_l = [t.lower().strip('"') for t in txt_records or []]
     spf_l = [t for t in txt_l if t.startswith("v=spf1")]
     other_txt = [t for t in txt_l if not t.startswith("v=spf1")]
     mx_l = [m.lower().rstrip(".") for m in mx_records or []]
+    dmarc_l = [d.lower().strip('"') for d in dmarc_records or []]
     hits = []
     for tool in tools.values():
         pats = tool["patterns"]
         evidence = None
-        for source, records, key in (("dns_txt", other_txt, "dns_txt"), ("spf", spf_l, "spf"), ("dns_mx", mx_l, "mx")):
+        for source, records, key in (("dns_txt", other_txt, "dns_txt"), ("spf", spf_l, "spf"), ("dns_mx", mx_l, "mx"), ("dmarc", dmarc_l, "dmarc")):
             for p in pats.get(key, []):
                 if any(_match(p, r) for r in records):
                     evidence = (source, p)

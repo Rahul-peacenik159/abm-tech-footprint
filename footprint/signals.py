@@ -8,13 +8,15 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
+from . import posture as posture_mod
+
 SIGNAL_FIELDS = [
     "account_domain", "signal_type", "signal_value", "tool_name", "category", "role",
     "weight", "play", "source", "evidence", "evidence_url", "pack", "observed_at",
 ]
 SUMMARY_FIELDS = [
     "account_domain", "fetched", "score", "top_play", "competitors", "complements",
-    "gaps", "changes", "new_subdomains", "pagespeed_mobile", "all_tools", "errors",
+    "gaps", "posture_issues", "changes", "new_subdomains", "pagespeed_mobile", "all_tools", "errors",
 ]
 
 
@@ -41,7 +43,7 @@ def _row(domain, pack, observed_at, **kw) -> dict:
 def build_signals(domain: str, pack: dict, hits: list[dict], fetched: bool, page_url: str | None,
                   previous_tools: set[str] | None = None, new_subdomains: dict | None = None,
                   pagespeed_score: int | None = None, slow_threshold: int = 50,
-                  observed_at: str | None = None) -> list[dict]:
+                  observed_at: str | None = None, posture_findings: list[dict] | None = None) -> list[dict]:
     observed_at = observed_at or now_iso()
     w, plays = pack["weights"], pack["plays"]
     rows: list[dict] = []
@@ -109,6 +111,15 @@ def build_signals(domain: str, pack: dict, hits: list[dict], fetched: bool, page
                          play=plays.get("slow_site", "") if slow else "", source="pagespeed",
                          evidence=f"mobile performance score {pagespeed_score}/100",
                          evidence_url=page_url or ""))
+    # 6. Security / email posture findings
+    for f in posture_findings or []:
+        weight, play = posture_mod.weight_and_play(f["id"], pack)
+        issue = f["status"] == "issue"
+        rows.append(_row(domain, pack, observed_at, signal_type="posture", signal_value=f["id"],
+                         category=f["category"], role="gap" if issue else "neutral",
+                         weight=weight if issue else 0, play=play if issue else "",
+                         source="dns" if f["category"] == "email_auth" else "headers",
+                         evidence=f["evidence"], evidence_url=page_url or ""))
     return rows
 
 
@@ -127,6 +138,7 @@ def summarise(domain: str, rows: list[dict], fetched: bool, errors: list[str]) -
         "competitors": names(lambda r: r["signal_type"] == "tech_detected" and r["role"] == "competitor"),
         "complements": names(lambda r: r["signal_type"] == "tech_detected" and r["role"] == "complement"),
         "gaps": names(lambda r: r["signal_type"] == "gap"),
+        "posture_issues": names(lambda r: r["signal_type"] == "posture" and r["role"] == "gap"),
         "changes": "; ".join(f"{'+' if r['signal_type'] == 'tech_added' else '-'}{r['tool_name']}"
                              for r in rows if r["signal_type"] in ("tech_added", "tech_removed")),
         "new_subdomains": names(lambda r: r["signal_type"] == "subdomain_new"),

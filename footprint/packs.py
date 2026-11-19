@@ -17,7 +17,8 @@ DEFAULT_PLAYS = {
     "slow_site": "speed_audit",
 }
 
-PATTERN_KEYS = ("html", "headers", "dns_txt", "spf", "mx")
+PATTERN_KEYS = ("html", "headers", "dns_txt", "spf", "mx", "dmarc")
+POSTURE_KINDS = ("email", "web")
 
 
 class PackError(ValueError):
@@ -54,6 +55,9 @@ def load_pack(path: str | Path, _seen: set | None = None) -> dict:
         "interesting_subdomains": [],
         "extra_paths": [],
         "seller": {"product": "", "competitors": [], "complements": [], "must_have_categories": []},
+        "posture": [],
+        "posture_weights": {},
+        "posture_plays": {},
     }
 
     for parent in raw.get("extends", []) or []:
@@ -63,6 +67,9 @@ def load_pack(path: str | Path, _seen: set | None = None) -> dict:
         merged["plays"].update(base["plays"])
         merged["interesting_subdomains"] += base["interesting_subdomains"]
         merged["extra_paths"] += base["extra_paths"]
+        merged["posture"] += base["posture"]
+        merged["posture_weights"].update(base["posture_weights"])
+        merged["posture_plays"].update(base["posture_plays"])
 
     for tool_id, tool in (raw.get("tools") or {}).items():
         merged["tools"][tool_id] = _normalise_tool(tool_id, tool, path)
@@ -70,6 +77,9 @@ def load_pack(path: str | Path, _seen: set | None = None) -> dict:
     merged["plays"].update(raw.get("plays") or {})
     merged["interesting_subdomains"] = sorted(set(merged["interesting_subdomains"]) | set(raw.get("interesting_subdomains") or []))
     merged["extra_paths"] = list(dict.fromkeys(merged["extra_paths"] + list(raw.get("extra_paths") or [])))
+    merged["posture"] = sorted(set(merged["posture"]) | set(raw.get("posture") or []))
+    merged["posture_weights"].update(raw.get("posture_weights") or {})
+    merged["posture_plays"].update(raw.get("posture_plays") or {})
     if raw.get("seller"):
         merged["seller"].update({k: (v if k == "product" else (v or [])) for k, v in raw["seller"].items()})
 
@@ -109,6 +119,9 @@ def _validate(pack: dict, path: Path) -> None:
         missing = [t for t in seller.get(key, []) if t not in tool_ids]
         if missing:
             raise PackError(f"{path}: seller.{key} lists unknown tool ids {missing}")
+    bad = [k for k in pack["posture"] if k not in POSTURE_KINDS]
+    if bad:
+        raise PackError(f"{path}: unknown posture checks {bad}; use {list(POSTURE_KINDS)}")
     categories = {t["category"] for t in pack["tools"].values()}
     missing_cats = [c for c in seller.get("must_have_categories", []) if c not in categories]
     if missing_cats:

@@ -132,3 +132,76 @@ def test_httparchive_sql_generation(capsys):
     assert "'Yotpo' AS technology, 'yotpo' AS tool_id" in sql
     assert "'competitor' AS role" in sql
     assert "`httparchive.crawl.pages`" in sql and "is_root_page" in sql
+
+
+# ---------------------------------------------------------------- posture checks
+from footprint import posture  # noqa: E402
+
+
+def _ids(findings, status=None):
+    return {f["id"] for f in findings if status is None or f["status"] == status}
+
+
+def test_email_posture_flags_weak_setups():
+    weak = posture.email_posture(["v=spf1 include:_spf.google.com ?all"], ["smtp.google.com"],
+                                 ["v=DMARC1; p=none"], [], [])
+    assert {"spf_permissive_all", "dmarc_monitor_only", "dmarc_no_reporting",
+            "mta_sts_missing", "bimi_missing"} <= _ids(weak, "issue")
+
+    partial = posture.email_posture(["v=spf1 -all"], ["mx.example.com"],
+                                    ["v=DMARC1; p=quarantine; pct=25; sp=none; rua=mailto:d@example.com"])
+    assert {"dmarc_partial_enforcement", "dmarc_subdomains_unprotected"} <= _ids(partial, "issue")
+    assert "spf_hardfail" in _ids(partial, "ok")
+
+    missing = posture.email_posture(["google-site-verification=x"], [], [])
+    assert {"spf_missing", "dmarc_missing"} <= _ids(missing, "issue")
+    assert "no_mx" in _ids(missing, "info")
+
+    many = " ".join(f"include:s{i}.example.com" for i in range(11))
+    assert "spf_too_many_lookups" in _ids(posture.email_posture([f"v=spf1 {many} -all"], ["mx"], []), "issue")
+
+    good = posture.email_posture(["v=spf1 include:_spf.google.com ~all"], ["smtp.google.com"],
+                                 ["v=DMARC1; p=reject; rua=mailto:d@vali.email"], ["v=STSv1; id=1"], ["v=BIMI1; l=x"])
+    assert _ids(good, "issue") == set()
+
+
+def test_web_posture():
+    strong = {"strict-transport-security": "max-age=63072000", "content-security-policy": "frame-ancestors 'self'",
+              "x-content-type-options": "nosniff", "referrer-policy": "no-referrer"}
+    assert _ids(posture.web_posture(strong, True, "https://x.example/"), "issue") == set()
+    weak = posture.web_posture({"server": "nginx/1.18.0"}, False, "https://x.example/")
+    assert {"hsts_missing", "csp_missing", "clickjacking_unprotected", "nosniff_missing",
+            "referrer_policy_missing", "server_version_exposed", "security_txt_missing"} <= _ids(weak, "issue")
+    assert "hsts_short" in _ids(posture.web_posture({"strict-transport-security": "max-age=600"}, None), "issue")
+
+
+def test_scan_from_raw_with_posture(tmp_path):
+    raw = [{"domain": "startup.example", "url": "https://startup.example/",
+            "headers": {"server": "Vercel", "x-vercel-id": ""},
+            "html": "trust.startup.example\nconsent.cookiebot.com/uc.js\nsoc 2", "security_txt": False}]
+    dns = {"startup.example": {"txt": ["v=spf1 include:_spf.google.com ~all", "openai-domain-verification=x"],
+                               "mx": ["smtp.google.com"],
+                               "dmarc": ["v=DMARC1; p=none; rua=mailto:d@startup.example"],
+                               "mta_sts": [], "bimi": []}}
+    (tmp_path / "raw.json").write_text(json.dumps(raw))
+    (tmp_path / "dns.json").write_text(json.dumps(dns))
+    for pack in ("security-compliance", "email-deliverability"):
+        out = tmp_path / pack
+        cli.main(["scan", "--pack", pack, "--from-raw", str(tmp_path / "raw.json"),
+                  "--dns-raw", str(tmp_path / "dns.json"), "--out", str(out)])
+        row = next(csv.DictReader(open(out / "accounts_summary.csv")))
+        if pack == "security-compliance":
+            assert "Trust center" in row["all_tools"] and "Cookiebot" in row["all_tools"]
+            assert "Mentions SOC 2" in row["all_tools"] and "Vercel" in row["all_tools"]
+            assert "csp_missing" in row["posture_issues"] and "security_txt_missing" in row["posture_issues"]
+            assert "trust_center" not in row["gaps"]
+        else:
+            assert "dmarc_monitor_only" in row["posture_issues"]
+            assert "OpenAI" in row["all_tools"] and "Google Workspace" in row["all_tools"]
+            assert row["gaps"] == "dmarc_reporting"
+
+
+def test_dmarc_vendor_detection():
+    pack = packs.load_pack(PACKS / "email-deliverability.yaml")
+    hits = detect.detect_dns([], [], pack["tools"], ["v=DMARC1; p=reject; rua=mailto:abc@ag.dmarcian.com"])
+    assert {h["tool"]: h["source"] for h in hits}.get("dmarcian") == "dmarc"

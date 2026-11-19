@@ -1,0 +1,1315 @@
+{
+  "description": "Email provider, gateways, senders and DMARC/SPF/MTA-STS/BIMI posture",
+  "extra_paths": [],
+  "interesting_subdomains": [
+    "app",
+    "careers",
+    "click",
+    "docs",
+    "email",
+    "events",
+    "go",
+    "help",
+    "investors",
+    "jobs",
+    "links",
+    "login",
+    "mail",
+    "mta-sts",
+    "news",
+    "newsletter",
+    "portal",
+    "shop",
+    "smtp",
+    "sso",
+    "status",
+    "store",
+    "support"
+  ],
+  "pack": "email-deliverability",
+  "plays": {
+    "competitor_found": "displacement_sequence",
+    "competitor_removed": "switch_window_outreach",
+    "complement_found": "integration_pitch",
+    "gap_found": "email_auth_rollout",
+    "slow_site": "speed_audit",
+    "subdomain_new": "launch_congrats_touch",
+    "tool_added": "timing_trigger",
+    "tool_removed": "timing_trigger"
+  },
+  "posture": [
+    "email"
+  ],
+  "posture_plays": {},
+  "posture_weights": {},
+  "seller": {
+    "competitors": [
+      "valimail",
+      "dmarcian",
+      "easydmarc",
+      "red_sift",
+      "powerdmarc",
+      "proofpoint_efd"
+    ],
+    "complements": [
+      "google_workspace",
+      "microsoft_365"
+    ],
+    "must_have_categories": [
+      "dmarc_reporting"
+    ],
+    "product": "Example: DMARC enforcement and email authentication platform"
+  },
+  "tools": {
+    "adobe": {
+      "category": "saas_signup",
+      "httparchive": null,
+      "id": "adobe",
+      "name": "Adobe (enterprise identity)",
+      "patterns": {
+        "dns_txt": [
+          "adobe-idp-site-verification"
+        ]
+      }
+    },
+    "agari": {
+      "category": "dmarc_reporting",
+      "httparchive": null,
+      "id": "agari",
+      "name": "Agari (Fortra)",
+      "patterns": {
+        "dmarc": [
+          "agari.com"
+        ]
+      }
+    },
+    "amazon_ses": {
+      "category": "email_sending",
+      "httparchive": null,
+      "id": "amazon_ses",
+      "name": "Amazon SES",
+      "patterns": {
+        "spf": [
+          "amazonses.com"
+        ]
+      }
+    },
+    "anthropic_enterprise": {
+      "category": "ai_platform",
+      "httparchive": null,
+      "id": "anthropic_enterprise",
+      "name": "Anthropic (org domain verified)",
+      "patterns": {
+        "dns_txt": [
+          "anthropic-domain-verification"
+        ]
+      }
+    },
+    "apple_business": {
+      "category": "saas_signup",
+      "httparchive": null,
+      "id": "apple_business",
+      "name": "Apple (business services)",
+      "patterns": {
+        "dns_txt": [
+          "apple-domain-verification"
+        ]
+      }
+    },
+    "atlassian": {
+      "category": "saas_signup",
+      "httparchive": null,
+      "id": "atlassian",
+      "name": "Atlassian (Jira / Confluence)",
+      "patterns": {
+        "dns_txt": [
+          "atlassian-domain-verification"
+        ]
+      }
+    },
+    "barracuda": {
+      "category": "email_security",
+      "httparchive": null,
+      "id": "barracuda",
+      "name": "Barracuda Email Security",
+      "patterns": {
+        "mx": [
+          "barracudanetworks.com"
+        ]
+      }
+    },
+    "bigcommerce": {
+      "category": "ecommerce_platform",
+      "httparchive": "BigCommerce",
+      "id": "bigcommerce",
+      "name": "BigCommerce",
+      "patterns": {
+        "html": [
+          "cdn11.bigcommerce.com"
+        ]
+      }
+    },
+    "brevo": {
+      "category": "email_marketing",
+      "httparchive": null,
+      "id": "brevo",
+      "name": "Brevo (Sendinblue)",
+      "patterns": {
+        "dmarc": [
+          "dmarc.brevo.com"
+        ],
+        "spf": [
+          "spf.sendinblue.com",
+          "spf.brevo.com"
+        ]
+      }
+    },
+    "cal_com": {
+      "category": "scheduling",
+      "httparchive": null,
+      "id": "cal_com",
+      "name": "Cal.com",
+      "patterns": {
+        "html": [
+          "app.cal.com",
+          "cal.com/embed",
+          "cal.eu"
+        ]
+      }
+    },
+    "calendly": {
+      "category": "scheduling",
+      "httparchive": null,
+      "id": "calendly",
+      "name": "Calendly",
+      "patterns": {
+        "html": [
+          "assets.calendly.com",
+          "calendly.com/assets/external/widget"
+        ]
+      }
+    },
+    "chili_piper": {
+      "category": "scheduling",
+      "httparchive": null,
+      "id": "chili_piper",
+      "name": "Chili Piper",
+      "patterns": {
+        "html": [
+          "js.chilipiper.com"
+        ]
+      }
+    },
+    "cisco_secure_email": {
+      "category": "email_security",
+      "httparchive": null,
+      "id": "cisco_secure_email",
+      "name": "Cisco Secure Email",
+      "patterns": {
+        "mx": [
+          "iphmx.com"
+        ]
+      }
+    },
+    "clearbit_reveal": {
+      "category": "visitor_id",
+      "httparchive": null,
+      "id": "clearbit_reveal",
+      "name": "Clearbit / Breeze Intelligence tag",
+      "patterns": {
+        "html": [
+          "tag.clearbitscripts.com"
+        ]
+      }
+    },
+    "cloudflare": {
+      "category": "cdn_security",
+      "httparchive": "Cloudflare",
+      "id": "cloudflare",
+      "name": "Cloudflare",
+      "patterns": {
+        "headers": {
+          "cf-ray": "",
+          "server": "cloudflare"
+        }
+      }
+    },
+    "cloudflare_dmarc": {
+      "category": "dmarc_reporting",
+      "httparchive": null,
+      "id": "cloudflare_dmarc",
+      "name": "Cloudflare DMARC Management",
+      "patterns": {
+        "dmarc": [
+          "dmarc-reports.cloudflare.net"
+        ]
+      }
+    },
+    "cloudflare_web_analytics": {
+      "category": "analytics",
+      "httparchive": null,
+      "id": "cloudflare_web_analytics",
+      "name": "Cloudflare Web Analytics",
+      "patterns": {
+        "html": [
+          "static.cloudflareinsights.com"
+        ]
+      }
+    },
+    "cookiebot": {
+      "category": "consent",
+      "httparchive": "Cookiebot",
+      "id": "cookiebot",
+      "name": "Cookiebot",
+      "patterns": {
+        "html": [
+          "consent.cookiebot.com"
+        ]
+      }
+    },
+    "crazy_egg": {
+      "category": "session_recording",
+      "httparchive": null,
+      "id": "crazy_egg",
+      "name": "Crazy Egg",
+      "patterns": {
+        "html": [
+          "script.crazyegg.com"
+        ]
+      }
+    },
+    "demandbase": {
+      "category": "abm_platform",
+      "httparchive": "Demandbase",
+      "id": "demandbase",
+      "name": "Demandbase",
+      "patterns": {
+        "html": [
+          "tag.demandbase.com"
+        ]
+      }
+    },
+    "descope": {
+      "category": "auth_provider",
+      "httparchive": null,
+      "id": "descope",
+      "name": "Descope",
+      "patterns": {
+        "dns_txt": [
+          "descope-domain-verification"
+        ]
+      }
+    },
+    "dmarcian": {
+      "category": "dmarc_reporting",
+      "httparchive": null,
+      "id": "dmarcian",
+      "name": "dmarcian",
+      "patterns": {
+        "dmarc": [
+          "dmarcian.com",
+          "dmarcian.eu"
+        ]
+      }
+    },
+    "docusign": {
+      "category": "saas_signup",
+      "httparchive": null,
+      "id": "docusign",
+      "name": "DocuSign",
+      "patterns": {
+        "dns_txt": [
+          "docusign="
+        ]
+      }
+    },
+    "drift": {
+      "category": "chat",
+      "httparchive": "Drift",
+      "id": "drift",
+      "name": "Drift",
+      "patterns": {
+        "html": [
+          "js.driftt.com"
+        ]
+      }
+    },
+    "drupal": {
+      "category": "cms",
+      "httparchive": "Drupal",
+      "id": "drupal",
+      "name": "Drupal",
+      "patterns": {
+        "html": [
+          "drupal-settings-json",
+          "/sites/default/files/"
+        ]
+      }
+    },
+    "easydmarc": {
+      "category": "dmarc_reporting",
+      "httparchive": null,
+      "id": "easydmarc",
+      "name": "EasyDMARC",
+      "patterns": {
+        "dmarc": [
+          "easydmarc"
+        ]
+      }
+    },
+    "fastmail": {
+      "category": "email_provider",
+      "httparchive": null,
+      "id": "fastmail",
+      "name": "Fastmail",
+      "patterns": {
+        "mx": [
+          "messagingengine.com"
+        ]
+      }
+    },
+    "firebase_hosting": {
+      "category": "hosting",
+      "httparchive": null,
+      "id": "firebase_hosting",
+      "name": "Firebase Hosting",
+      "patterns": {
+        "dns_txt": [
+          "hosting-site="
+        ]
+      }
+    },
+    "framer": {
+      "category": "cms",
+      "httparchive": "Framer",
+      "id": "framer",
+      "name": "Framer",
+      "patterns": {
+        "headers": {
+          "server": "framer"
+        },
+        "html": [
+          "framerusercontent.com",
+          "framerstatic.com"
+        ]
+      }
+    },
+    "freshdesk": {
+      "category": "support_email",
+      "httparchive": null,
+      "id": "freshdesk",
+      "name": "Freshdesk",
+      "patterns": {
+        "spf": [
+          "email.freshdesk.com"
+        ]
+      }
+    },
+    "godaddy_dmarc": {
+      "category": "dmarc_reporting",
+      "httparchive": null,
+      "id": "godaddy_dmarc",
+      "name": "GoDaddy DMARC reporting",
+      "patterns": {
+        "dmarc": [
+          "onsecureserver.net"
+        ]
+      }
+    },
+    "google_analytics": {
+      "category": "analytics",
+      "httparchive": "Google Analytics",
+      "id": "google_analytics",
+      "name": "Google Analytics",
+      "patterns": {
+        "html": [
+          "googletagmanager.com/gtag/js",
+          "google-analytics.com/analytics.js",
+          "google-analytics.com/ga.js"
+        ]
+      }
+    },
+    "google_tag_manager": {
+      "category": "tag_manager",
+      "httparchive": "Google Tag Manager",
+      "id": "google_tag_manager",
+      "name": "Google Tag Manager",
+      "patterns": {
+        "html": [
+          "googletagmanager.com/gtm.js",
+          "googletagmanager.com/ns.html"
+        ]
+      }
+    },
+    "google_workspace": {
+      "category": "email_provider",
+      "httparchive": null,
+      "id": "google_workspace",
+      "name": "Google Workspace",
+      "patterns": {
+        "mx": [
+          "google.com",
+          "googlemail.com"
+        ],
+        "spf": [
+          "_spf.google.com"
+        ]
+      }
+    },
+    "hotjar": {
+      "category": "session_recording",
+      "httparchive": "Hotjar",
+      "id": "hotjar",
+      "name": "Hotjar",
+      "patterns": {
+        "html": [
+          "static.hotjar.com",
+          "hotjar.com/c/hotjar-"
+        ]
+      }
+    },
+    "hubspot": {
+      "category": "marketing_automation",
+      "httparchive": "HubSpot",
+      "id": "hubspot",
+      "name": "HubSpot",
+      "patterns": {
+        "html": [
+          "js.hs-scripts.com",
+          "js.hsforms.net",
+          "js.hs-analytics.net",
+          "js.hs-banner.com"
+        ],
+        "spf": [
+          "hubspotemail.net"
+        ]
+      }
+    },
+    "intercom": {
+      "category": "chat",
+      "httparchive": "Intercom",
+      "id": "intercom",
+      "name": "Intercom",
+      "patterns": {
+        "html": [
+          "widget.intercom.io",
+          "js.intercomcdn.com"
+        ]
+      }
+    },
+    "klaviyo": {
+      "category": "email_marketing",
+      "httparchive": "Klaviyo",
+      "id": "klaviyo",
+      "name": "Klaviyo",
+      "patterns": {
+        "html": [
+          "static.klaviyo.com",
+          "klaviyo.com/onsite"
+        ]
+      }
+    },
+    "linkedin_insight": {
+      "category": "ad_pixel",
+      "httparchive": "LinkedIn Insight Tag",
+      "id": "linkedin_insight",
+      "name": "LinkedIn Insight Tag",
+      "patterns": {
+        "html": [
+          "snap.licdn.com",
+          "_linkedin_partner_id"
+        ]
+      }
+    },
+    "linkedin_verified": {
+      "category": "saas_signup",
+      "httparchive": null,
+      "id": "linkedin_verified",
+      "name": "LinkedIn (verified domain)",
+      "patterns": {
+        "dns_txt": [
+          "linkedin-site-verification"
+        ]
+      }
+    },
+    "livechat": {
+      "category": "chat",
+      "httparchive": "LiveChat",
+      "id": "livechat",
+      "name": "LiveChat",
+      "patterns": {
+        "html": [
+          "cdn.livechatinc.com"
+        ]
+      }
+    },
+    "magento": {
+      "category": "ecommerce_platform",
+      "httparchive": "Magento",
+      "id": "magento",
+      "name": "Magento / Adobe Commerce",
+      "patterns": {
+        "html": [
+          "mage/cookies",
+          "magento_"
+        ]
+      }
+    },
+    "mailchimp": {
+      "category": "email_marketing",
+      "httparchive": "MailChimp",
+      "id": "mailchimp",
+      "name": "Mailchimp",
+      "patterns": {
+        "html": [
+          "chimpstatic.com",
+          "list-manage.com"
+        ],
+        "spf": [
+          "servers.mcsv.net"
+        ]
+      }
+    },
+    "mailerlite": {
+      "category": "email_marketing",
+      "httparchive": null,
+      "id": "mailerlite",
+      "name": "MailerLite",
+      "patterns": {
+        "dns_txt": [
+          "mailerlite-domain-verification"
+        ],
+        "spf": [
+          "mlsend.com"
+        ]
+      }
+    },
+    "mailgun": {
+      "category": "email_sending",
+      "httparchive": null,
+      "id": "mailgun",
+      "name": "Mailgun",
+      "patterns": {
+        "spf": [
+          "mailgun.org"
+        ]
+      }
+    },
+    "mandrill": {
+      "category": "email_sending",
+      "httparchive": null,
+      "id": "mandrill",
+      "name": "Mailchimp Transactional (Mandrill)",
+      "patterns": {
+        "spf": [
+          "spf.mandrillapp.com"
+        ]
+      }
+    },
+    "marketo": {
+      "category": "marketing_automation",
+      "httparchive": "Marketo",
+      "id": "marketo",
+      "name": "Marketo",
+      "patterns": {
+        "html": [
+          "munchkin.marketo.net",
+          "mktoforms2"
+        ],
+        "spf": [
+          "mktomail.com"
+        ]
+      }
+    },
+    "meta_business": {
+      "category": "saas_signup",
+      "httparchive": null,
+      "id": "meta_business",
+      "name": "Meta Business Manager",
+      "patterns": {
+        "dns_txt": [
+          "facebook-domain-verification"
+        ]
+      }
+    },
+    "meta_pixel": {
+      "category": "ad_pixel",
+      "httparchive": "Facebook Pixel",
+      "id": "meta_pixel",
+      "name": "Meta Pixel",
+      "patterns": {
+        "html": [
+          "connect.facebook.net",
+          "fbq('init'",
+          "fbq(\"init\""
+        ]
+      }
+    },
+    "microsoft_365": {
+      "category": "email_provider",
+      "httparchive": null,
+      "id": "microsoft_365",
+      "name": "Microsoft 365 (mail)",
+      "patterns": {
+        "mx": [
+          "mail.protection.outlook.com"
+        ],
+        "spf": [
+          "spf.protection.outlook.com"
+        ]
+      }
+    },
+    "microsoft_clarity": {
+      "category": "session_recording",
+      "httparchive": "Microsoft Clarity",
+      "id": "microsoft_clarity",
+      "name": "Microsoft Clarity",
+      "patterns": {
+        "html": [
+          "clarity.ms/tag"
+        ]
+      }
+    },
+    "microsoft_tenant": {
+      "category": "saas_signup",
+      "httparchive": null,
+      "id": "microsoft_tenant",
+      "name": "Microsoft 365 / Entra tenant (domain verified)",
+      "patterns": {
+        "dns_txt": [
+          "re:^ms=ms\\d+"
+        ]
+      }
+    },
+    "mimecast": {
+      "category": "email_security",
+      "httparchive": null,
+      "id": "mimecast",
+      "name": "Mimecast",
+      "patterns": {
+        "mx": [
+          "mimecast.com"
+        ]
+      }
+    },
+    "mutiny": {
+      "category": "web_personalization",
+      "httparchive": null,
+      "id": "mutiny",
+      "name": "Mutiny",
+      "patterns": {
+        "html": [
+          "mutinycdn.com"
+        ]
+      }
+    },
+    "netlify": {
+      "category": "hosting",
+      "httparchive": "Netlify",
+      "id": "netlify",
+      "name": "Netlify",
+      "patterns": {
+        "headers": {
+          "server": "netlify"
+        }
+      }
+    },
+    "nextjs": {
+      "category": "web_framework",
+      "httparchive": "Next.js",
+      "id": "nextjs",
+      "name": "Next.js",
+      "patterns": {
+        "headers": {
+          "x-nextjs-cache": "",
+          "x-nextjs-stale-time": "",
+          "x-powered-by": "next.js"
+        },
+        "html": [
+          "/_next/static/",
+          "_next/static",
+          "__next_data__"
+        ]
+      }
+    },
+    "notion": {
+      "category": "saas_signup",
+      "httparchive": null,
+      "id": "notion",
+      "name": "Notion",
+      "patterns": {
+        "dns_txt": [
+          "notion-domain-verification"
+        ]
+      }
+    },
+    "onetrust": {
+      "category": "consent",
+      "httparchive": "OneTrust",
+      "id": "onetrust",
+      "name": "OneTrust",
+      "patterns": {
+        "dns_txt": [
+          "onetrust-domain-verification"
+        ],
+        "html": [
+          "cdn.cookielaw.org",
+          "optanon"
+        ]
+      }
+    },
+    "openai_enterprise": {
+      "category": "ai_platform",
+      "httparchive": null,
+      "id": "openai_enterprise",
+      "name": "OpenAI (org domain verified)",
+      "patterns": {
+        "dns_txt": [
+          "openai-domain-verification"
+        ]
+      }
+    },
+    "optimizely": {
+      "category": "ab_testing",
+      "httparchive": "Optimizely",
+      "id": "optimizely",
+      "name": "Optimizely",
+      "patterns": {
+        "html": [
+          "cdn.optimizely.com"
+        ]
+      }
+    },
+    "pardot": {
+      "category": "marketing_automation",
+      "httparchive": null,
+      "id": "pardot",
+      "name": "Salesforce Account Engagement (Pardot)",
+      "patterns": {
+        "html": [
+          "pi.pardot.com",
+          "go.pardot.com"
+        ]
+      }
+    },
+    "paypal": {
+      "category": "payments",
+      "httparchive": "PayPal",
+      "id": "paypal",
+      "name": "PayPal",
+      "patterns": {
+        "html": [
+          "paypal.com/sdk/js",
+          "paypalobjects.com"
+        ]
+      }
+    },
+    "postmark": {
+      "category": "email_sending",
+      "httparchive": null,
+      "id": "postmark",
+      "name": "Postmark",
+      "patterns": {
+        "spf": [
+          "spf.mtasv.net"
+        ]
+      }
+    },
+    "postmark_dmarc": {
+      "category": "dmarc_reporting",
+      "httparchive": null,
+      "id": "postmark_dmarc",
+      "name": "Postmark DMARC digests",
+      "patterns": {
+        "dmarc": [
+          "dmarc.postmarkapp.com"
+        ]
+      }
+    },
+    "powerdmarc": {
+      "category": "dmarc_reporting",
+      "httparchive": null,
+      "id": "powerdmarc",
+      "name": "PowerDMARC",
+      "patterns": {
+        "dmarc": [
+          "powerdmarc.com"
+        ]
+      }
+    },
+    "proofpoint": {
+      "category": "email_security",
+      "httparchive": null,
+      "id": "proofpoint",
+      "name": "Proofpoint",
+      "patterns": {
+        "mx": [
+          "pphosted.com"
+        ]
+      }
+    },
+    "proofpoint_efd": {
+      "category": "dmarc_reporting",
+      "httparchive": null,
+      "id": "proofpoint_efd",
+      "name": "Proofpoint Email Fraud Defense",
+      "patterns": {
+        "dmarc": [
+          "emaildefense.proofpoint.com"
+        ]
+      }
+    },
+    "protonmail": {
+      "category": "email_provider",
+      "httparchive": null,
+      "id": "protonmail",
+      "name": "Proton Mail",
+      "patterns": {
+        "dns_txt": [
+          "protonmail-verification"
+        ],
+        "mx": [
+          "protonmail.ch"
+        ]
+      }
+    },
+    "qualified": {
+      "category": "chat",
+      "httparchive": null,
+      "id": "qualified",
+      "name": "Qualified",
+      "patterns": {
+        "html": [
+          "js.qualified.com"
+        ]
+      }
+    },
+    "red_sift": {
+      "category": "dmarc_reporting",
+      "httparchive": null,
+      "id": "red_sift",
+      "name": "Red Sift OnDMARC",
+      "patterns": {
+        "dmarc": [
+          "ondmarc.com"
+        ]
+      }
+    },
+    "resend": {
+      "category": "email_sending",
+      "httparchive": null,
+      "id": "resend",
+      "name": "Resend",
+      "patterns": {
+        "dns_txt": [
+          "resend-domain-verification"
+        ]
+      }
+    },
+    "rippling": {
+      "category": "saas_signup",
+      "httparchive": null,
+      "id": "rippling",
+      "name": "Rippling",
+      "patterns": {
+        "dns_txt": [
+          "rippling-domain-verification"
+        ]
+      }
+    },
+    "salesforce": {
+      "category": "crm",
+      "httparchive": null,
+      "id": "salesforce",
+      "name": "Salesforce",
+      "patterns": {
+        "spf": [
+          "_spf.salesforce.com"
+        ]
+      }
+    },
+    "sanity": {
+      "category": "cms",
+      "httparchive": null,
+      "id": "sanity",
+      "name": "Sanity (headless CMS)",
+      "patterns": {
+        "html": [
+          "cdn.sanity.io"
+        ]
+      }
+    },
+    "segment": {
+      "category": "cdp",
+      "httparchive": "Segment",
+      "id": "segment",
+      "name": "Segment",
+      "patterns": {
+        "html": [
+          "cdn.segment.com/analytics.js",
+          "cdn.segment.io"
+        ]
+      }
+    },
+    "sendgrid": {
+      "category": "email_sending",
+      "httparchive": null,
+      "id": "sendgrid",
+      "name": "SendGrid",
+      "patterns": {
+        "spf": [
+          "sendgrid.net"
+        ]
+      }
+    },
+    "shopify": {
+      "category": "ecommerce_platform",
+      "httparchive": "Shopify",
+      "id": "shopify",
+      "name": "Shopify",
+      "patterns": {
+        "html": [
+          "cdn.shopify.com",
+          "myshopify.com"
+        ]
+      }
+    },
+    "sixsense": {
+      "category": "abm_platform",
+      "httparchive": "6sense",
+      "id": "sixsense",
+      "name": "6sense",
+      "patterns": {
+        "html": [
+          "j.6sc.co"
+        ]
+      }
+    },
+    "slack": {
+      "category": "saas_signup",
+      "httparchive": null,
+      "id": "slack",
+      "name": "Slack",
+      "patterns": {
+        "dns_txt": [
+          "slack-domain-verification"
+        ]
+      }
+    },
+    "sophos_email": {
+      "category": "email_security",
+      "httparchive": null,
+      "id": "sophos_email",
+      "name": "Sophos Email",
+      "patterns": {
+        "mx": [
+          "hydra.sophos.com"
+        ]
+      }
+    },
+    "sparkpost": {
+      "category": "email_sending",
+      "httparchive": null,
+      "id": "sparkpost",
+      "name": "SparkPost",
+      "patterns": {
+        "spf": [
+          "sparkpostmail.com"
+        ]
+      }
+    },
+    "squarespace": {
+      "category": "cms",
+      "httparchive": "Squarespace",
+      "id": "squarespace",
+      "name": "Squarespace",
+      "patterns": {
+        "html": [
+          "static1.squarespace.com"
+        ]
+      }
+    },
+    "statuspage": {
+      "category": "saas_signup",
+      "httparchive": null,
+      "id": "statuspage",
+      "name": "Atlassian Statuspage",
+      "patterns": {
+        "dns_txt": [
+          "status-page-domain-verification"
+        ],
+        "spf": [
+          "stspg-customer.com"
+        ]
+      }
+    },
+    "stripe": {
+      "category": "payments",
+      "httparchive": "Stripe",
+      "id": "stripe",
+      "name": "Stripe",
+      "patterns": {
+        "dns_txt": [
+          "stripe-verification"
+        ],
+        "html": [
+          "js.stripe.com"
+        ]
+      }
+    },
+    "stytch": {
+      "category": "auth_provider",
+      "httparchive": null,
+      "id": "stytch",
+      "name": "Stytch",
+      "patterns": {
+        "dns_txt": [
+          "stytch_verification",
+          "stytch-verification"
+        ]
+      }
+    },
+    "tawk": {
+      "category": "chat",
+      "httparchive": "Tawk.to",
+      "id": "tawk",
+      "name": "Tawk.to",
+      "patterns": {
+        "html": [
+          "embed.tawk.to"
+        ]
+      }
+    },
+    "tidio": {
+      "category": "chat",
+      "httparchive": "Tidio",
+      "id": "tidio",
+      "name": "Tidio",
+      "patterns": {
+        "html": [
+          "code.tidio.co"
+        ]
+      }
+    },
+    "trend_micro_email": {
+      "category": "email_security",
+      "httparchive": null,
+      "id": "trend_micro_email",
+      "name": "Trend Micro Email Security",
+      "patterns": {
+        "mx": [
+          "tmes.trendmicro.com",
+          "tmes.trendmicro.eu"
+        ]
+      }
+    },
+    "typeform": {
+      "category": "forms",
+      "httparchive": null,
+      "id": "typeform",
+      "name": "Typeform",
+      "patterns": {
+        "html": [
+          "embed.typeform.com"
+        ]
+      }
+    },
+    "uriports": {
+      "category": "dmarc_reporting",
+      "httparchive": null,
+      "id": "uriports",
+      "name": "URIports",
+      "patterns": {
+        "dmarc": [
+          "uriports.com"
+        ]
+      }
+    },
+    "valimail": {
+      "category": "dmarc_reporting",
+      "httparchive": null,
+      "id": "valimail",
+      "name": "Valimail",
+      "patterns": {
+        "dmarc": [
+          "vali.email"
+        ]
+      }
+    },
+    "vercel": {
+      "category": "hosting",
+      "httparchive": "Vercel",
+      "id": "vercel",
+      "name": "Vercel",
+      "patterns": {
+        "headers": {
+          "server": "vercel",
+          "x-vercel-id": ""
+        }
+      }
+    },
+    "vidyard": {
+      "category": "video",
+      "httparchive": "Vidyard",
+      "id": "vidyard",
+      "name": "Vidyard",
+      "patterns": {
+        "html": [
+          "play.vidyard.com"
+        ]
+      }
+    },
+    "vimeo": {
+      "category": "video",
+      "httparchive": "Vimeo",
+      "id": "vimeo",
+      "name": "Vimeo",
+      "patterns": {
+        "html": [
+          "player.vimeo.com"
+        ]
+      }
+    },
+    "vwo": {
+      "category": "ab_testing",
+      "httparchive": "VWO",
+      "id": "vwo",
+      "name": "VWO",
+      "patterns": {
+        "html": [
+          "dev.visualwebsiteoptimizer.com"
+        ]
+      }
+    },
+    "webflow": {
+      "category": "cms",
+      "httparchive": "Webflow",
+      "id": "webflow",
+      "name": "Webflow",
+      "patterns": {
+        "html": [
+          "website-files.com",
+          "data-wf-site"
+        ]
+      }
+    },
+    "wistia": {
+      "category": "video",
+      "httparchive": "Wistia",
+      "id": "wistia",
+      "name": "Wistia",
+      "patterns": {
+        "html": [
+          "fast.wistia.com",
+          "fast.wistia.net"
+        ]
+      }
+    },
+    "wix": {
+      "category": "cms",
+      "httparchive": "Wix",
+      "id": "wix",
+      "name": "Wix",
+      "patterns": {
+        "html": [
+          "static.wixstatic.com"
+        ]
+      }
+    },
+    "woocommerce": {
+      "category": "ecommerce_platform",
+      "httparchive": "WooCommerce",
+      "id": "woocommerce",
+      "name": "WooCommerce",
+      "patterns": {
+        "html": [
+          "woocommerce"
+        ]
+      }
+    },
+    "wordpress": {
+      "category": "cms",
+      "httparchive": "WordPress",
+      "id": "wordpress",
+      "name": "WordPress",
+      "patterns": {
+        "html": [
+          "/wp-content/",
+          "/wp-includes/"
+        ]
+      }
+    },
+    "workos": {
+      "category": "auth_provider",
+      "httparchive": null,
+      "id": "workos",
+      "name": "WorkOS",
+      "patterns": {
+        "dns_txt": [
+          "work-os",
+          "workos"
+        ]
+      }
+    },
+    "youtube": {
+      "category": "video",
+      "httparchive": "YouTube",
+      "id": "youtube",
+      "name": "YouTube embed",
+      "patterns": {
+        "html": [
+          "youtube.com/embed",
+          "youtube-nocookie.com/embed"
+        ]
+      }
+    },
+    "zendesk": {
+      "category": "chat",
+      "httparchive": "Zendesk",
+      "id": "zendesk",
+      "name": "Zendesk",
+      "patterns": {
+        "html": [
+          "static.zdassets.com"
+        ],
+        "spf": [
+          "mail.zendesk.com"
+        ]
+      }
+    },
+    "zoho_mail": {
+      "category": "email_provider",
+      "httparchive": null,
+      "id": "zoho_mail",
+      "name": "Zoho Mail",
+      "patterns": {
+        "mx": [
+          "zoho.com",
+          "zoho.eu",
+          "zoho.in"
+        ]
+      }
+    },
+    "zoom": {
+      "category": "saas_signup",
+      "httparchive": null,
+      "id": "zoom",
+      "name": "Zoom",
+      "patterns": {
+        "dns_txt": [
+          "zoom_verify_"
+        ]
+      }
+    }
+  },
+  "weights": {
+    "competitor_found": 30,
+    "competitor_removed": 35,
+    "complement_found": 5,
+    "gap_found": 20,
+    "slow_site": 10,
+    "subdomain_new": 10,
+    "tool_added": 25,
+    "tool_removed": 20
+  }
+}

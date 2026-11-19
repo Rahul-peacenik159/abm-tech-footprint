@@ -52,6 +52,16 @@ tools:
     patterns:
       html: ["static.hotjar.com", "hotjar.com/c/hotjar-"]
     httparchive: Hotjar
+  crazy_egg:
+    name: Crazy Egg
+    category: session_recording
+    patterns:
+      html: ["script.crazyegg.com"]
+  cloudflare_web_analytics:
+    name: Cloudflare Web Analytics
+    category: analytics
+    patterns:
+      html: ["static.cloudflareinsights.com"]
   microsoft_clarity:
     name: Microsoft Clarity
     category: session_recording
@@ -161,6 +171,11 @@ tools:
       html: ["js.qualified.com"]
 
   # ---------- Scheduling and forms ----------
+  cal_com:
+    name: Cal.com
+    category: scheduling
+    patterns:
+      html: ["app.cal.com", "cal.com/embed", "cal.eu"]
   calendly:
     name: Calendly
     category: scheduling
@@ -267,6 +282,25 @@ tools:
     patterns:
       html: ["static1.squarespace.com"]
     httparchive: Squarespace
+  framer:
+    name: Framer
+    category: cms
+    patterns:
+      html: ["framerusercontent.com", "framerstatic.com"]
+      headers: {"server": "framer"}
+    httparchive: Framer
+  sanity:
+    name: Sanity (headless CMS)
+    category: cms
+    patterns:
+      html: ["cdn.sanity.io"]
+  nextjs:
+    name: Next.js
+    category: web_framework
+    patterns:
+      html: ["/_next/static/", "_next/static", "__next_data__"]
+      headers: {"x-powered-by": "next.js", "x-nextjs-cache": "", "x-nextjs-stale-time": ""}
+    httparchive: Next.js
   drupal:
     name: Drupal
     category: cms
@@ -341,11 +375,15 @@ tools:
       mx: ["google.com", "googlemail.com"]
       spf: ["_spf.google.com"]
   microsoft_365:
-    name: Microsoft 365
+    name: Microsoft 365 (mail)
     category: email_provider
     patterns:
       mx: ["mail.protection.outlook.com"]
       spf: ["spf.protection.outlook.com"]
+  microsoft_tenant:
+    name: Microsoft 365 / Entra tenant (domain verified)
+    category: saas_signup
+    patterns:
       dns_txt: ["re:^ms=ms\\d+"]
   proofpoint:
     name: Proofpoint
@@ -409,6 +447,78 @@ tools:
     category: saas_signup
     patterns:
       dns_txt: ["slack-domain-verification"]
+  notion:
+    name: Notion
+    category: saas_signup
+    patterns:
+      dns_txt: ["notion-domain-verification"]
+  rippling:
+    name: Rippling
+    category: saas_signup
+    patterns:
+      dns_txt: ["rippling-domain-verification"]
+  linkedin_verified:
+    name: LinkedIn (verified domain)
+    category: saas_signup
+    patterns:
+      dns_txt: ["linkedin-site-verification"]
+  statuspage:
+    name: Atlassian Statuspage
+    category: saas_signup
+    patterns:
+      dns_txt: ["status-page-domain-verification"]
+      spf: ["stspg-customer.com"]
+  firebase_hosting:
+    name: Firebase Hosting
+    category: hosting
+    patterns:
+      dns_txt: ["hosting-site="]
+  protonmail:
+    name: Proton Mail
+    category: email_provider
+    patterns:
+      dns_txt: ["protonmail-verification"]
+      mx: ["protonmail.ch"]
+  resend:
+    name: Resend
+    category: email_sending
+    patterns:
+      dns_txt: ["resend-domain-verification"]
+  mailerlite:
+    name: MailerLite
+    category: email_marketing
+    patterns:
+      dns_txt: ["mailerlite-domain-verification"]
+      spf: ["mlsend.com"]
+
+  # ---------- Enterprise AI platforms (domain verification = org-level account) ----------
+  openai_enterprise:
+    name: OpenAI (org domain verified)
+    category: ai_platform
+    patterns:
+      dns_txt: ["openai-domain-verification"]
+  anthropic_enterprise:
+    name: Anthropic (org domain verified)
+    category: ai_platform
+    patterns:
+      dns_txt: ["anthropic-domain-verification"]
+
+  # ---------- Auth / identity providers (customer login) ----------
+  workos:
+    name: WorkOS
+    category: auth_provider
+    patterns:
+      dns_txt: ["work-os", "workos"]
+  stytch:
+    name: Stytch
+    category: auth_provider
+    patterns:
+      dns_txt: ["stytch_verification", "stytch-verification"]
+  descope:
+    name: Descope
+    category: auth_provider
+    patterns:
+      dns_txt: ["descope-domain-verification"]
 
 # Subdomains (from certificate logs) that usually mean something for GTM.
 interesting_subdomains: [app, portal, login, sso, status, docs, help, support, careers, jobs, shop, store, events, investors]

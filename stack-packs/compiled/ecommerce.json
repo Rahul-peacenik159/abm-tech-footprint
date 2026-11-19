@@ -35,6 +35,9 @@
     "tool_added": "timing_trigger",
     "tool_removed": "timing_trigger"
   },
+  "posture": [],
+  "posture_plays": {},
+  "posture_weights": {},
   "seller": {
     "competitors": [
       "yotpo",
@@ -126,6 +129,17 @@
         ]
       }
     },
+    "anthropic_enterprise": {
+      "category": "ai_platform",
+      "httparchive": null,
+      "id": "anthropic_enterprise",
+      "name": "Anthropic (org domain verified)",
+      "patterns": {
+        "dns_txt": [
+          "anthropic-domain-verification"
+        ]
+      }
+    },
     "apple_business": {
       "category": "saas_signup",
       "httparchive": null,
@@ -181,6 +195,19 @@
         ]
       }
     },
+    "cal_com": {
+      "category": "scheduling",
+      "httparchive": null,
+      "id": "cal_com",
+      "name": "Cal.com",
+      "patterns": {
+        "html": [
+          "app.cal.com",
+          "cal.com/embed",
+          "cal.eu"
+        ]
+      }
+    },
     "calendly": {
       "category": "scheduling",
       "httparchive": null,
@@ -227,6 +254,17 @@
         }
       }
     },
+    "cloudflare_web_analytics": {
+      "category": "analytics",
+      "httparchive": null,
+      "id": "cloudflare_web_analytics",
+      "name": "Cloudflare Web Analytics",
+      "patterns": {
+        "html": [
+          "static.cloudflareinsights.com"
+        ]
+      }
+    },
     "cookiebot": {
       "category": "consent",
       "httparchive": "Cookiebot",
@@ -238,6 +276,17 @@
         ]
       }
     },
+    "crazy_egg": {
+      "category": "session_recording",
+      "httparchive": null,
+      "id": "crazy_egg",
+      "name": "Crazy Egg",
+      "patterns": {
+        "html": [
+          "script.crazyegg.com"
+        ]
+      }
+    },
     "demandbase": {
       "category": "abm_platform",
       "httparchive": "Demandbase",
@@ -246,6 +295,17 @@
       "patterns": {
         "html": [
           "tag.demandbase.com"
+        ]
+      }
+    },
+    "descope": {
+      "category": "auth_provider",
+      "httparchive": null,
+      "id": "descope",
+      "name": "Descope",
+      "patterns": {
+        "dns_txt": [
+          "descope-domain-verification"
         ]
       }
     },
@@ -280,6 +340,32 @@
         "html": [
           "drupal-settings-json",
           "/sites/default/files/"
+        ]
+      }
+    },
+    "firebase_hosting": {
+      "category": "hosting",
+      "httparchive": null,
+      "id": "firebase_hosting",
+      "name": "Firebase Hosting",
+      "patterns": {
+        "dns_txt": [
+          "hosting-site="
+        ]
+      }
+    },
+    "framer": {
+      "category": "cms",
+      "httparchive": "Framer",
+      "id": "framer",
+      "name": "Framer",
+      "patterns": {
+        "headers": {
+          "server": "framer"
+        },
+        "html": [
+          "framerusercontent.com",
+          "framerstatic.com"
         ]
       }
     },
@@ -423,6 +509,17 @@
         ]
       }
     },
+    "linkedin_verified": {
+      "category": "saas_signup",
+      "httparchive": null,
+      "id": "linkedin_verified",
+      "name": "LinkedIn (verified domain)",
+      "patterns": {
+        "dns_txt": [
+          "linkedin-site-verification"
+        ]
+      }
+    },
     "livechat": {
       "category": "chat",
       "httparchive": "LiveChat",
@@ -469,6 +566,20 @@
         ],
         "spf": [
           "servers.mcsv.net"
+        ]
+      }
+    },
+    "mailerlite": {
+      "category": "email_marketing",
+      "httparchive": null,
+      "id": "mailerlite",
+      "name": "MailerLite",
+      "patterns": {
+        "dns_txt": [
+          "mailerlite-domain-verification"
+        ],
+        "spf": [
+          "mlsend.com"
         ]
       }
     },
@@ -526,11 +637,8 @@
       "category": "email_provider",
       "httparchive": null,
       "id": "microsoft_365",
-      "name": "Microsoft 365",
+      "name": "Microsoft 365 (mail)",
       "patterns": {
-        "dns_txt": [
-          "re:^ms=ms\\d+"
-        ],
         "mx": [
           "mail.protection.outlook.com"
         ],
@@ -547,6 +655,17 @@
       "patterns": {
         "html": [
           "clarity.ms/tag"
+        ]
+      }
+    },
+    "microsoft_tenant": {
+      "category": "saas_signup",
+      "httparchive": null,
+      "id": "microsoft_tenant",
+      "name": "Microsoft 365 / Entra tenant (domain verified)",
+      "patterns": {
+        "dns_txt": [
+          "re:^ms=ms\\d+"
         ]
       }
     },
@@ -594,6 +713,24 @@
         }
       }
     },
+    "nextjs": {
+      "category": "web_framework",
+      "httparchive": "Next.js",
+      "id": "nextjs",
+      "name": "Next.js",
+      "patterns": {
+        "headers": {
+          "x-nextjs-cache": "",
+          "x-nextjs-stale-time": "",
+          "x-powered-by": "next.js"
+        },
+        "html": [
+          "/_next/static/",
+          "_next/static",
+          "__next_data__"
+        ]
+      }
+    },
     "nosto": {
       "category": "personalization",
       "httparchive": null,
@@ -602,6 +739,17 @@
       "patterns": {
         "html": [
           "connect.nosto.com"
+        ]
+      }
+    },
+    "notion": {
+      "category": "saas_signup",
+      "httparchive": null,
+      "id": "notion",
+      "name": "Notion",
+      "patterns": {
+        "dns_txt": [
+          "notion-domain-verification"
         ]
       }
     },
@@ -628,6 +776,17 @@
         "html": [
           "cdn.cookielaw.org",
           "optanon"
+        ]
+      }
+    },
+    "openai_enterprise": {
+      "category": "ai_platform",
+      "httparchive": null,
+      "id": "openai_enterprise",
+      "name": "OpenAI (org domain verified)",
+      "patterns": {
+        "dns_txt": [
+          "openai-domain-verification"
         ]
       }
     },
@@ -688,6 +847,20 @@
         ]
       }
     },
+    "protonmail": {
+      "category": "email_provider",
+      "httparchive": null,
+      "id": "protonmail",
+      "name": "Proton Mail",
+      "patterns": {
+        "dns_txt": [
+          "protonmail-verification"
+        ],
+        "mx": [
+          "protonmail.ch"
+        ]
+      }
+    },
     "qualified": {
       "category": "chat",
       "httparchive": null,
@@ -722,6 +895,28 @@
         ]
       }
     },
+    "resend": {
+      "category": "email_sending",
+      "httparchive": null,
+      "id": "resend",
+      "name": "Resend",
+      "patterns": {
+        "dns_txt": [
+          "resend-domain-verification"
+        ]
+      }
+    },
+    "rippling": {
+      "category": "saas_signup",
+      "httparchive": null,
+      "id": "rippling",
+      "name": "Rippling",
+      "patterns": {
+        "dns_txt": [
+          "rippling-domain-verification"
+        ]
+      }
+    },
     "salesforce": {
       "category": "crm",
       "httparchive": null,
@@ -730,6 +925,17 @@
       "patterns": {
         "spf": [
           "_spf.salesforce.com"
+        ]
+      }
+    },
+    "sanity": {
+      "category": "cms",
+      "httparchive": null,
+      "id": "sanity",
+      "name": "Sanity (headless CMS)",
+      "patterns": {
+        "html": [
+          "cdn.sanity.io"
         ]
       }
     },
@@ -835,6 +1041,20 @@
         ]
       }
     },
+    "statuspage": {
+      "category": "saas_signup",
+      "httparchive": null,
+      "id": "statuspage",
+      "name": "Atlassian Statuspage",
+      "patterns": {
+        "dns_txt": [
+          "status-page-domain-verification"
+        ],
+        "spf": [
+          "stspg-customer.com"
+        ]
+      }
+    },
     "stripe": {
       "category": "payments",
       "httparchive": "Stripe",
@@ -846,6 +1066,18 @@
         ],
         "html": [
           "js.stripe.com"
+        ]
+      }
+    },
+    "stytch": {
+      "category": "auth_provider",
+      "httparchive": null,
+      "id": "stytch",
+      "name": "Stytch",
+      "patterns": {
+        "dns_txt": [
+          "stytch_verification",
+          "stytch-verification"
         ]
       }
     },
@@ -982,6 +1214,18 @@
         "html": [
           "/wp-content/",
           "/wp-includes/"
+        ]
+      }
+    },
+    "workos": {
+      "category": "auth_provider",
+      "httparchive": null,
+      "id": "workos",
+      "name": "WorkOS",
+      "patterns": {
+        "dns_txt": [
+          "work-os",
+          "workos"
         ]
       }
     },
